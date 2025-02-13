@@ -2,88 +2,96 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
+import { Button } from "@/components/ui/button";
 
 export default function RegisterPage() {
-    const [census, setCensus] = useState("");
-    const [password, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
+    const [formData, setFormData] = useState({
+        census: "",
+        password: "",
+        confirmPassword: "",
+    });
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (password === confirmPassword) {
-            alert("Passwords match");
-        } else {
-            alert("Passwords do not match");
+        if (formData.password !== formData.confirmPassword) {
+            alert("Passwords do not match!");
+            return;
         }
+        console.log("Registration attempt with:", formData);
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-100 via-blue-300 to-blue-500 flex items-center justify-center pt-14 px-4 md:px-0">
-            <div className="bg-white rounded-3xl overflow-hidden w-full max-w-4xl shadow-xl flex flex-col md:flex-row">
-                {/* Right side - Login Form */}
-                <div className="w-full md:w-1/2 p-8 md:p-12 bg-purple-50/50">
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        <div className="space-y-2 text-center">
-                            <h1 className="text-3xl font-bold tracking-tight">Let&apos;s Get Started!</h1>
-                        </div>
-
-                        <div className="space-y-4">
+        <div className="min-h-screen bg-gradient-to-br from-purple-100 via-purple-300 to-purple-500">
+            <div className="flex min-h-screen items-center justify-center p-4">
+                <div className="bg-white/95 w-full max-w-4xl rounded-[2rem] shadow-xl flex">
+                    {/* Form side */}
+                    <div className="w-full md:w-1/2 p-8 md:p-12">
+                        <h1 className="text-3xl font-bold mb-8">Let's get started!</h1>
+                        
+                        <form onSubmit={handleSubmit} className="space-y-6">
                             <div className="space-y-2">
                                 <Label htmlFor="census">Census no</Label>
                                 <Input
                                     id="census"
-                                    placeholder="123456"
                                     type="text"
-                                    className="bg-white"
-                                    value={census}
-                                    onChange={(e) => setCensus(e.target.value)}
+                                    value={formData.census}
+                                    onChange={(e) => setFormData({ ...formData, census: e.target.value })}
+                                    placeholder="123456"
+                                    className="rounded-full px-6"
                                     required
                                 />
                             </div>
+
                             <div className="space-y-2">
                                 <Label htmlFor="password">Password</Label>
                                 <Input
                                     id="password"
                                     type="password"
-                                    className="bg-white"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    required
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="password-confirm">Confirm Password</Label>
-                                <Input
-                                    id="password-confirm"
-                                    type="password"
-                                    className="bg-white"
-                                    value={confirmPassword}
-                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    value={formData.password}
+                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                    className="rounded-full px-6"
                                     required
                                 />
                             </div>
 
-                            <Button type="submit" className="w-full bg-blue-500 hover:bg-blue-700 text-white">
+                            <div className="space-y-2">
+                                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                                <Input
+                                    id="confirmPassword"
+                                    type="password"
+                                    value={formData.confirmPassword}
+                                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                                    className="rounded-full px-6"
+                                    required
+                                />
+                            </div>
+
+                            <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700 text-white rounded-full py-6">
                                 Register
                             </Button>
 
                             <div className="text-center text-sm">
                                 Already have an account?{" "}
-                                <Link href="/login" className="text-blue-500 hover:underline">
-                                    Login Now
+                                <Link href="/login" className="text-purple-600 hover:underline">
+                                    Login
                                 </Link>
                             </div>
-                        </div>
-                    </form>
-                </div>
+                        </form>
+                    </div>
 
-                {/* Left side - Image */}
-                <div className="relative hidden md:block w-full md:w-1/2">
-                    <Image src="/man_on_register.jpg" alt="Customer service representative" className="object-cover" fill priority />
+                    {/* Image side */}
+                    <div className="relative hidden md:block w-1/2">
+                        <Image
+                            src="/men_on_register.png"
+                            alt="Support representative"
+                            className="object-cover rounded-r-[2rem]"
+                            fill
+                            priority
+                        />
+                    </div>
                 </div>
             </div>
         </div>

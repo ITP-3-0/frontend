@@ -2,88 +2,94 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function LoginPage() {
-    const [census, setCensus] = useState("");
-    const [password, setPassword] = useState("");
+    const [formData, setFormData] = useState({
+        census: "",
+        password: "",
+        rememberMe: false,
+    });
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log(census, password);
+        // Handle login logic here
+        console.log("Login attempt with:", formData);
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-100 via-blue-300 to-blue-500 flex items-center justify-center p-4 md:p-0">
-            <div className="bg-white rounded-3xl overflow-hidden w-full max-w-4xl shadow-xl flex flex-col md:flex-row">
-                {/* Left side - Image */}
-                <div className="relative hidden md:block w-full md:w-1/2">
-                    <Image src="/women_on_login.jfif" alt="Customer service representative" className="object-cover" fill priority />
-                </div>
+        <div className="min-h-screen bg-gradient-to-br from-purple-100 via-purple-300 to-purple-500">
+            <div className="flex min-h-screen items-center justify-center p-4">
+                <div className="bg-white/95 w-full max-w-4xl rounded-[2rem] shadow-xl flex">
+                    {/* Left side - Image */}
+                    <div className="relative hidden md:block w-1/2">
+                        <Image src="/women_on_homepage.png" alt="Customer support" className="object-cover rounded-l-[2rem]" fill priority />
+                    </div>
 
-                {/* Right side - Login Form */}
-                <div className="w-full md:w-1/2 p-8 md:p-12 bg-purple-50/50">
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        <div className="space-y-2 text-center">
-                            <h1 className="text-3xl font-bold tracking-tight">Welcome Back</h1>
-                        </div>
+                    {/* Right side - Login Form */}
+                    <div className="w-full md:w-1/2 p-8 md:p-12">
+                        <h1 className="text-3xl font-bold mb-8">Welcome Back</h1>
 
-                        <div className="space-y-4">
+                        <form onSubmit={handleSubmit} className="space-y-6">
                             <div className="space-y-2">
                                 <Label htmlFor="census">Census no</Label>
                                 <Input
-                                    value={census}
-                                    onChange={(e) => setCensus(e.target.value)}
                                     id="census"
-                                    placeholder="123456"
                                     type="text"
-                                    className="bg-white"
-                                    required
+                                    value={formData.census}
+                                    onChange={(e) => setFormData({ ...formData, census: e.target.value })}
+                                    placeholder="123456"
+                                    className="rounded-full px-6"
                                 />
                             </div>
+
                             <div className="space-y-2">
                                 <Label htmlFor="password">Password</Label>
                                 <Input
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
                                     id="password"
                                     type="password"
-                                    className="bg-white"
-                                    required
+                                    value={formData.password}
+                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                    className="rounded-full px-6"
                                 />
                             </div>
 
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center space-x-2">
-                                    <Checkbox id="remember" />
+                                    <Checkbox
+                                        id="remember"
+                                        checked={formData.rememberMe}
+                                        onCheckedChange={(checked) => setFormData({ ...formData, rememberMe: checked })}
+                                    />
                                     <label
                                         htmlFor="remember"
-                                        className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                                     >
                                         Remember me
                                     </label>
                                 </div>
-                                <Link href="/forgot-password" className="text-sm text-blue-500 hover:underline">
+
+                                <Link href="/forgot-password" className="text-sm text-purple-600 hover:underline">
                                     Forgot Password?
                                 </Link>
                             </div>
 
-                            <Button type="submit" className="w-full bg-blue-500 hover:bg-blue-700 text-white">
+                            <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700 text-white rounded-full py-6">
                                 Login Now
                             </Button>
 
                             <div className="text-center text-sm">
-                                Don&apos;t have any account?{" "}
-                                <Link href="/register" className="text-blue-500 hover:underline">
+                                Don't have any account?{" "}
+                                <Link href="/register" className="text-purple-600 hover:underline">
                                     Register Now
                                 </Link>
                             </div>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>

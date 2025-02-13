@@ -4,17 +4,12 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { LuTicketCheck } from "react-icons/lu";
 
-export default function NavBar(params) {
+export default function NavBar() {
     return (
-        <header className="fixed top-0 flex items-center justify-between px-10 border-b-0 border-slate-400 shadow-md w-full py-4">
-            <button
-                onClick={() => {
-                    window.location.href = "/";
-                }}
-                className="flex items-center gap-2"
-            >
-                <span className="text-xl font-semibold text-blue-700">HelpDesk</span>
-            </button>
+        <header className="fixed top-0 z-50 flex items-center justify-between px-10 bg-white/95 shadow-md w-full py-4">
+            <Link href="/" className="flex items-center gap-2">
+                <span className="text-xl font-semibold text-purple-700">HelpDesk</span>
+            </Link>
 
             <nav className="hidden md:flex items-center gap-8">
                 <Link className="text-black hover:underline" href="/">
@@ -31,10 +26,19 @@ export default function NavBar(params) {
                 </Link>
             </nav>
 
-            <Button className="w-fit bg-blue-500 rounded-full text-white hover:bg-blue-600">
-                <LuTicketCheck />
-                Raise a Ticket
-            </Button>
+            <div className="flex items-center gap-4">
+                <Link href="/login">
+                    <Button variant="outline" className="rounded-full">
+                        Login
+                    </Button>
+                </Link>
+                <Link href="/help-desk">
+                    <Button className="bg-purple-600 hover:bg-purple-700 rounded-full">
+                        <LuTicketCheck className="mr-2" />
+                        Raise a Ticket
+                    </Button>
+                </Link>
+            </div>
         </header>
     );
 }
