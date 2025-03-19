@@ -1,9 +1,18 @@
-import Image from "next/image";
+"use client"; // Ensure it's a client component for routing
+
 import { Button } from "@/components/ui/button";
 import { LuTicketCheck } from "react-icons/lu";
 import { FaQuestion } from "react-icons/fa";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function Home() {
+    const router = useRouter();
+
+    const navigateToTicketPage = () => {
+        router.push("/ticket"); // Navigate to ticket page
+    };
+
     return (
         <div className="h-screen bg-gradient-to-br from-blue-100 via-blue-300 to-blue-500">
             <div className="flex items-center justify-between px-20 h-full pt-20">
@@ -11,7 +20,10 @@ export default function Home() {
                     <h1 className="text-6xl font-bold text-black">Can&apos;t fix your device?</h1>
                     <p className="text-xl text-black">Search FAQs for answers. Still need help? Raise a ticket!</p>
                     <div className="flex gap-4">
-                        <Button className="w-fit h-12 bg-blue-500 rounded-full text-white hover:bg-blue-600">
+                        <Button
+                            onClick={navigateToTicketPage} // Navigate to /ticket page on click
+                            className="w-fit h-12 bg-blue-500 rounded-full text-white hover:bg-blue-600"
+                        >
                             <LuTicketCheck />
                             Raise a Ticket
                         </Button>
