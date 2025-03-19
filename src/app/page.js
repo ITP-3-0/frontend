@@ -1,11 +1,27 @@
+"use client";
+
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { LuTicketCheck } from "react-icons/lu";
 import { FaQuestion } from "react-icons/fa";
+import { redirect } from "next/navigation";
+import { useAuth } from "@/Firebase/AuthContext";
+import NavBar from "./_Components/NavBar";
 
 export default function Home() {
+    const { user, loading } = useAuth();
+
+    if (!user && !loading) {
+        redirect("/login");
+    }
+
+    if (loading) {
+        return <div>Loading...</div>;
+    }
+
     return (
         <div className="h-screen bg-gradient-to-br from-blue-100 via-blue-300 to-blue-500">
+            <NavBar />
             <div className="flex items-center justify-between px-20 h-full pt-20">
                 <div className="flex flex-col gap-4 w-1/2">
                     <h1 className="text-6xl font-bold text-black">Can&apos;t fix your device?</h1>

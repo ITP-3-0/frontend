@@ -7,18 +7,29 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
+import { login } from "@/Firebase/FirebaseFunctions";
+import NavBar from "../_Components/NavBar";
+import { useButton } from "../Contexts/ButtonContext";
+import { Loader2 } from "lucide-react";
 
 export default function LoginPage() {
-    const [census, setCensus] = useState("");
+    const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
+    const { button, setButton } = useButton();
+
     const handleSubmit = (e) => {
+        setButton(true);
         e.preventDefault();
-        console.log(census, password);
+        login(email, password);
+        setButton(false);
     };
+
+    console.log(button);
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-100 via-blue-300 to-blue-500 flex items-center justify-center p-4 md:p-0">
+            <NavBar />
             <div className="bg-white rounded-3xl overflow-hidden w-full max-w-4xl shadow-xl flex flex-col md:flex-row">
                 {/* Left side - Image */}
                 <div className="relative hidden md:block w-full md:w-1/2">
@@ -34,12 +45,12 @@ export default function LoginPage() {
 
                         <div className="space-y-4">
                             <div className="space-y-2">
-                                <Label htmlFor="census">Census no</Label>
+                                <Label htmlFor="email">Email</Label>
                                 <Input
-                                    value={census}
-                                    onChange={(e) => setCensus(e.target.value)}
-                                    id="census"
-                                    placeholder="123456"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    id="email"
+                                    placeholder="Enter your email"
                                     type="text"
                                     className="bg-white"
                                     required
@@ -73,6 +84,7 @@ export default function LoginPage() {
                             </div>
 
                             <Button type="submit" className="w-full bg-blue-500 hover:bg-blue-700 text-white">
+                                {button ? <Loader2 className="animate-spin" /> : ""}
                                 Login Now
                             </Button>
 
