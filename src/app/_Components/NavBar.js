@@ -31,10 +31,12 @@ export default function NavBar(params) {
                 </Link>
             </nav>
 
-            <Button className="w-fit bg-blue-500 rounded-full text-white hover:bg-blue-600">
-                <LuTicketCheck />
-                Raise a Ticket
-            </Button>
+            <div onClick={() => (window.location.href = "/login")}>
+                <Button className="w-fit bg-blue-500 rounded-full text-white hover:bg-blue-600">
+                    <LuTicketCheck />
+                    Get Started
+                </Button>
+            </div>
         </header>
     );
 }

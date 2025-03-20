@@ -11,6 +11,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
+import { useAuth } from "@/Firebase/AuthContext";
+import { Spinner } from "@/components/ui/spinner";
 import { addNotificationHandler } from "@/utils/notificationUtils";
 import axios from "axios";
 
@@ -115,6 +117,20 @@ export default function Notifications() {
             setIsCheckingServer(false);
         }
     };
+
+    const { user, loading } = useAuth();
+
+    if (!user && !loading) {
+        redirect("/login");
+    }
+
+    if (loading) {
+        return (
+            <div className="h-screen flex items-center justify-center">
+                <Spinner />
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-200 flex flex-col items-center justify-center p-6">

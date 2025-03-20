@@ -2,7 +2,7 @@
 
 import { useState, createContext, useContext } from "react";
 
-const ButtonContext = createContext();
+export const ButtonContext = createContext();
 
 export const ButtonProvider = ({ children }) => {
     const [button, setButton] = useState(false);

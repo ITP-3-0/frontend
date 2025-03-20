@@ -8,15 +8,23 @@ import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { register } from "@/Firebase/FirebaseFunctions";
 import NavBar from "../_Components/NavBar";
+import { Loader2 } from "lucide-react";
+
+// TODO : 
+// The loading button is not working as expected. It should stop spinning once an error occurs.
 
 export default function RegisterPage() {
     const [census, setCensus] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [buttonLoading, setButtonLoading] = useState(false);
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        register(email, password, census);
+        setButtonLoading(true);
+        register(email, password, census).catch((error) => {
+            setButtonLoading(false);
+        });
     };
 
     return (
@@ -69,6 +77,7 @@ export default function RegisterPage() {
                             </div>
 
                             <Button type="submit" className="w-full bg-blue-500 hover:bg-blue-700 text-white">
+                                {buttonLoading ? <Loader2 className="animate-spin" /> : ""}
                                 Register
                             </Button>
 
