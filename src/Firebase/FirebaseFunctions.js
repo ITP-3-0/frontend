@@ -61,3 +61,17 @@ export const login = async (email, password) => {
         console.error(error);
     }
 };
+
+export const logout = async () => {
+    try {
+        signOut(auth)
+            .then(() => {
+                window.location.href = "/";
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    } catch (error) {
+        console.error(error);
+    }
+};

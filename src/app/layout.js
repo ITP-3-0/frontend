@@ -3,6 +3,7 @@ import "./globals.css";
 import { AuthProvider } from "@/Firebase/AuthContext";
 import { ButtonProvider } from "./Contexts/ButtonContext";
 import { Toaster } from "@/components/ui/sonner";
+import { TabProvider } from "./Contexts/TabContext";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -25,7 +26,9 @@ export default function RootLayout({ children }) {
             <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
                 <main>
                     <AuthProvider>
-                        <ButtonProvider>{children}</ButtonProvider>
+                        <TabProvider>
+                            <ButtonProvider>{children}</ButtonProvider>
+                        </TabProvider>
                     </AuthProvider>
                 </main>
                 <Toaster />
