@@ -9,11 +9,7 @@ import { useAuth } from "@/Firebase/AuthContext";
 import NavBar from "./_Components/NavBar";
 
 export default function Home() {
-    const { user, loading } = useAuth();
-
-    if (!user && !loading) {
-        redirect("/login");
-    }
+    const { loading } = useAuth();
 
     if (loading) {
         return <div>Loading...</div>;

@@ -1,6 +1,5 @@
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { auth } from "./Initialize";
-import { useButton } from "@/app/Contexts/ButtonContext";
 
 export const register = async (email, password, censusNo) => {
     try {
@@ -8,8 +7,8 @@ export const register = async (email, password, censusNo) => {
             .then((userCredential) => {
                 const user = userCredential.user;
                 // API call to store user in database
+                // start from here
             })
-            .then(() => {})
             .then(() => {
                 window.location.href = "/portal";
             });
@@ -20,13 +19,9 @@ export const register = async (email, password, censusNo) => {
 
 export const login = async (email, password) => {
     try {
-        signInWithEmailAndPassword(auth, email, password)
-            .then((userCredential) => {
-                const user = userCredential.user;
-            })
-            .then(() => {
-                window.location.href = "/portal";
-            });
+        signInWithEmailAndPassword(auth, email, password).then(() => {
+            window.location.href = "/portal";
+        });
     } catch (error) {
         console.error(error);
     }

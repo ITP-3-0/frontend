@@ -9,23 +9,12 @@ import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { login } from "@/Firebase/FirebaseFunctions";
 import NavBar from "../_Components/NavBar";
-import { useButton } from "../Contexts/ButtonContext";
 import { Loader2 } from "lucide-react";
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-
-    const { button, setButton } = useButton();
-
-    const handleSubmit = (e) => {
-        setButton(true);
-        e.preventDefault();
-        login(email, password);
-        setButton(false);
-    };
-
-    console.log(button);
+    // const [buttonLoading, setButtonLoading] = useState(false);
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-100 via-blue-300 to-blue-500 flex items-center justify-center p-4 md:p-0">
@@ -38,7 +27,13 @@ export default function LoginPage() {
 
                 {/* Right side - Login Form */}
                 <div className="w-full md:w-1/2 p-8 md:p-12 bg-purple-50/50">
-                    <form onSubmit={handleSubmit} className="space-y-6">
+                    <form
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            login(email, password);
+                        }}
+                        className="space-y-6"
+                    >
                         <div className="space-y-2 text-center">
                             <h1 className="text-3xl font-bold tracking-tight">Welcome Back</h1>
                         </div>
@@ -84,7 +79,7 @@ export default function LoginPage() {
                             </div>
 
                             <Button type="submit" className="w-full bg-blue-500 hover:bg-blue-700 text-white">
-                                {button ? <Loader2 className="animate-spin" /> : ""}
+                                {/* {buttonLoading ? <Loader2 className="animate-spin" /> : ""} */}
                                 Login Now
                             </Button>
 
