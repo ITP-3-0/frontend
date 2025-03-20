@@ -11,10 +11,13 @@ import { login } from "@/Firebase/FirebaseFunctions";
 import NavBar from "../_Components/NavBar";
 import { Loader2 } from "lucide-react";
 
+// TODO :
+// The loading button is not working as expected. It should stop spinning once an error occurs.
+
 export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    // const [buttonLoading, setButtonLoading] = useState(false);
+    const [buttonLoading, setButtonLoading] = useState(false);
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-100 via-blue-300 to-blue-500 flex items-center justify-center p-4 md:p-0">
@@ -30,6 +33,7 @@ export default function LoginPage() {
                     <form
                         onSubmit={(e) => {
                             e.preventDefault();
+                            setButtonLoading(true);
                             login(email, password);
                         }}
                         className="space-y-6"
@@ -79,7 +83,7 @@ export default function LoginPage() {
                             </div>
 
                             <Button type="submit" className="w-full bg-blue-500 hover:bg-blue-700 text-white">
-                                {/* {buttonLoading ? <Loader2 className="animate-spin" /> : ""} */}
+                                {buttonLoading ? <Loader2 className="animate-spin" /> : ""}
                                 Login Now
                             </Button>
 

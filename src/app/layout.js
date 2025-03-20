@@ -2,6 +2,7 @@ import { Geist, Geist_Mono, Roboto } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/Firebase/AuthContext";
 import { ButtonProvider } from "./Contexts/ButtonContext";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -27,6 +28,7 @@ export default function RootLayout({ children }) {
                         <ButtonProvider>{children}</ButtonProvider>
                     </AuthProvider>
                 </main>
+                <Toaster />
             </body>
         </html>
     );
