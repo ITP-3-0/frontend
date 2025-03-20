@@ -11,6 +11,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
+import { addNotificationHandler } from "@/utils/notificationUtils";
+import axios from "axios";
 
 export default function Notifications() {
     const { toast } = useToast();
@@ -29,6 +31,8 @@ export default function Notifications() {
         targetUsers: [],
         targetRoles: [],
         isEmailable: false,
+        scheduleAt: "", // New field for scheduling
+        isScheduled: false, // New field to toggle scheduling
     });
 
     // Available roles
@@ -37,9 +41,8 @@ export default function Notifications() {
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const response = await fetch("/api/users");
-                const data = await response.json();
-                setUsers(data);
+                const response = await axios.get("/api/users");
+                setUsers(response.data);
             } catch (error) {
                 console.error("Error fetching users:", error);
             }
@@ -82,9 +85,8 @@ export default function Notifications() {
     const fetchNotifications = async () => {
         setIsFetching(true);
         try {
-            const response = await fetch("/api/notifications");
-            const data = await response.json();
-            setNotifications(data);
+            const response = await axios.get("/api/notifications");
+            setNotifications(response.data);
         } catch (error) {
             console.error("Error fetching notifications:", error);
         } finally {
@@ -93,71 +95,15 @@ export default function Notifications() {
     };
 
     const addNotification = async () => {
-        if (!formData.title.trim() || !formData.message.trim()) {
-            toast({
-                title: "Error",
-                description: "Title and message are required",
-                variant: "destructive",
-            });
-            return;
-        }
-
-        if (formData.targetRoles.length === 0 && formData.targetUsers.length === 0) {
-            toast({
-                title: "Error",
-                description: "Please select at least one target role or user",
-                variant: "destructive",
-            });
-            return;
-        }
-
-        setIsLoading(true);
-        try {
-            const response = await fetch("/api/notifications", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData),
-            });
-
-            if (response.ok) {
-                toast({
-                    title: "Success",
-                    description: "Notification sent successfully!",
-                    variant: "default",
-                });
-                setFormData({
-                    title: "",
-                    message: "",
-                    type: "system",
-                    priority: "medium",
-                    targetUsers: [],
-                    targetRoles: [],
-                    isEmailable: false,
-                });
-            } else {
-                toast({
-                    title: "Error",
-                    description: "Failed to send notification",
-                    variant: "destructive",
-                });
-            }
-        } catch (error) {
-            console.error("Error adding notification:", error);
-            toast({
-                title: "Error",
-                description: "An unexpected error occurred",
-                variant: "destructive",
-            });
-        } finally {
-            setIsLoading(false);
-        }
+        const result = await addNotificationHandler(formData, toast, setFormData, setIsLoading);
+        if (result === false) return;
     };
 
     const checkServerStatus = async () => {
         setIsCheckingServer(true);
         try {
-            const response = await fetch("/api");
-            if (response.ok) {
+            const response = await axios.get("/api");
+            if (response.status === 200) {
                 setServerStatus("Server is up and running!");
             } else {
                 setServerStatus("Server is down.");
@@ -207,6 +153,34 @@ export default function Notifications() {
                                 disabled={isLoading}
                             />
                         </div>
+
+                        <div className="flex items-center gap-2">
+                            <Checkbox
+                                id="isScheduled"
+                                name="isScheduled"
+                                checked={formData.isScheduled}
+                                onCheckedChange={(checked) => setFormData({ ...formData, isScheduled: checked })}
+                                disabled={isLoading}
+                            />
+                            <Label htmlFor="isScheduled" className={`cursor-pointer ${isLoading ? "opacity-50" : ""}`}>
+                                Enable Scheduling
+                            </Label>
+                        </div>
+
+                        {formData.isScheduled && (
+                            <div>
+                                <Label htmlFor="scheduleAt">Schedule At</Label>
+                                <Input
+                                    id="scheduleAt"
+                                    name="scheduleAt"
+                                    type="datetime-local"
+                                    value={formData.scheduleAt}
+                                    onChange={handleChange}
+                                    className="mt-1"
+                                    disabled={isLoading}
+                                />
+                            </div>
+                        )}
 
                         <Tabs defaultValue="roles">
                             <TabsList className="grid grid-cols-2">
