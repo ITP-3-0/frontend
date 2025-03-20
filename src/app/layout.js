@@ -1,9 +1,8 @@
-import { Geist, Geist_Mono, Roboto } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/Firebase/AuthContext";
 import { ButtonProvider } from "./Contexts/ButtonContext";
 import { Toaster } from "@/components/ui/sonner";
-import { TabProvider } from "./Contexts/TabContext";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -26,9 +25,7 @@ export default function RootLayout({ children }) {
             <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
                 <main>
                     <AuthProvider>
-                        <TabProvider>
-                            <ButtonProvider>{children}</ButtonProvider>
-                        </TabProvider>
+                        <ButtonProvider>{children}</ButtonProvider>
                     </AuthProvider>
                 </main>
                 <Toaster />

@@ -7,12 +7,17 @@ import { FaQuestion } from "react-icons/fa";
 import { redirect } from "next/navigation";
 import { useAuth } from "@/Firebase/AuthContext";
 import NavBar from "./_Components/NavBar";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function Home() {
     const { loading } = useAuth();
 
     if (loading) {
-        return <div>Loading...</div>;
+        return (
+            <div className="h-screen flex items-center justify-center">
+                <Spinner />
+            </div>
+        );
     }
 
     return (

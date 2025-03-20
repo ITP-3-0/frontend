@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { useAuth } from "@/Firebase/AuthContext";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function Notifications() {
     const { toast } = useToast();
@@ -178,7 +179,11 @@ export default function Notifications() {
     }
 
     if (loading) {
-        return <div>Loading...</div>;
+        return (
+            <div className="h-screen flex items-center justify-center">
+                <Spinner />
+            </div>
+        );
     }
 
     return (
