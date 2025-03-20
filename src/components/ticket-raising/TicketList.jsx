@@ -1,4 +1,3 @@
-// app/components/ticket-raising/TicketList.jsx
 'use client';
 
 import { useState } from 'react';
@@ -14,12 +13,6 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
-import {
     AlertDialog,
     AlertDialogAction,
     AlertDialogCancel,
@@ -29,7 +22,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { MoreHorizontal, PencilIcon, TrashIcon } from 'lucide-react';
+import { PencilIcon, TrashIcon, LaptopIcon } from 'lucide-react';
 
 export default function TicketList({ tickets }) {
     const router = useRouter();
@@ -44,7 +37,7 @@ export default function TicketList({ tickets }) {
         if (!ticketToDelete) return;
 
         try {
-            const response = await fetch(`/api/tickets/${ticketToDelete}`, {
+            const response = await fetch(`http://localhost:5000/tickets/${ticketToDelete}`, {
                 method: 'DELETE',
             });
 
@@ -52,6 +45,7 @@ export default function TicketList({ tickets }) {
                 throw new Error('Failed to delete ticket');
             }
 
+            // Refresh the page after deleting the ticket
             router.refresh();
         } catch (error) {
             console.error('Error deleting ticket:', error);
@@ -80,75 +74,47 @@ export default function TicketList({ tickets }) {
         );
     };
 
-    const getStatusBadge = (status) => {
-        const colors = {
-            open: 'bg-blue-100 text-blue-800',
-            in_progress: 'bg-purple-100 text-purple-800',
-            closed: 'bg-gray-100 text-gray-800',
-        };
-
-        const label = status === 'in_progress' ? 'In Progress' :
-            status.charAt(0).toUpperCase() + status.slice(1);
-
-        return (
-            <Badge className={colors[status]}>
-                {label}
-            </Badge>
-        );
-    };
-
     return (
         <>
             <div className="rounded-md border">
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Ticket ID</TableHead>
                             <TableHead>Title</TableHead>
+                            <TableHead>Description</TableHead>
                             <TableHead>Device</TableHead>
                             <TableHead>Priority</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Created</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {tickets.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={7} className="text-center py-6 text-gray-500">
-                                    No tickets found. Create your first ticket!
+                                <TableCell colSpan={5} className="text-center py-10 text-gray-500">
+                                    <div className="flex flex-col items-center">
+                                        <LaptopIcon className="h-10 w-10 mb-2 text-gray-400" />
+                                        <p>No Data</p>
+                                    </div>
                                 </TableCell>
                             </TableRow>
                         ) : (
                             tickets.map((ticket) => (
-                                <TableRow key={ticket._id}>
-                                    <TableCell className="font-medium">{ticket.ticket_id}</TableCell>
+                                <TableRow key={ticket._id} className="border-b">
                                     <TableCell>{ticket.title}</TableCell>
+                                    <TableCell>{ticket.description}</TableCell>
                                     <TableCell>{ticket.deviceName || 'N/A'}</TableCell>
                                     <TableCell>{getPriorityBadge(ticket.priority)}</TableCell>
-                                    <TableCell>{getStatusBadge(ticket.status)}</TableCell>
-                                    <TableCell>{new Date(ticket.created_at).toLocaleDateString()}</TableCell>
-                                    <TableCell className="text-right">
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" size="sm">
-                                                    <MoreHorizontal className="h-4 w-4" />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end">
-                                                <DropdownMenuItem onClick={() => handleEdit(ticket._id)}>
-                                                    <PencilIcon className="mr-2 h-4 w-4" />
-                                                    Edit
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem
-                                                    className="text-red-600"
-                                                    onClick={() => openDeleteDialog(ticket._id)}
-                                                >
-                                                    <TrashIcon className="mr-2 h-4 w-4" />
-                                                    Delete
-                                                </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
+                                    <TableCell className="text-right flex gap-2 justify-end">
+                                        <Button variant="ghost" size="sm" onClick={() => handleEdit(ticket._id)}>
+                                            <PencilIcon className="h-5 w-5 text-blue-600" />
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => openDeleteDialog(ticket._id)}
+                                        >
+                                            <TrashIcon className="h-5 w-5 text-red-600" />
+                                        </Button>
                                     </TableCell>
                                 </TableRow>
                             ))

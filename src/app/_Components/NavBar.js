@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { LuTicketCheck } from "react-icons/lu";
 
-export default function NavBar(params) {
+export default function NavBar() {
     return (
         <header className="fixed top-0 flex items-center justify-between px-10 border-b-0 border-slate-400 shadow-md w-full py-4">
             <button
@@ -31,10 +31,12 @@ export default function NavBar(params) {
                 </Link>
             </nav>
 
-            <Button className="w-fit bg-blue-500 rounded-full text-white hover:bg-blue-600">
-                <LuTicketCheck />
-                Raise a Ticket
-            </Button>
+            <Link href="/tickets/ticketList">
+                <Button className="w-fit bg-blue-500 rounded-full text-white hover:bg-blue-600 flex items-center gap-2">
+                    <LuTicketCheck />
+                    View All Tickets
+                </Button>
+            </Link>
         </header>
     );
 }

@@ -1,4 +1,3 @@
-// components/ticket-raising/QrScanner.jsx
 'use client';
 
 import { useState } from 'react';
@@ -20,21 +19,17 @@ export default function QrScanner({ onScanSuccess }) {
 
             qrScanner.render((decodedText) => {
                 try {
-                    // Try to parse as JSON first
                     try {
                         const deviceData = JSON.parse(decodedText);
                         onScanSuccess(deviceData);
                     } catch (jsonError) {
-                        // If not valid JSON, try to parse as key-value pairs
-                        // Format could be like "Device Name: Smart Board, Distribution Date: 2023-01-01"
+                        
                         const deviceData = {};
 
-                        // Split by commas and process each part
                         const parts = decodedText.split(',');
                         parts.forEach(part => {
                             const [key, value] = part.split(':').map(item => item.trim());
                             if (key && value) {
-                                // Map the scanned keys to our expected property names
                                 const propertyMap = {
                                     'Device Name': 'deviceName',
                                     'Distribution Date': 'distributionDate',
