@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { LuTicketCheck } from "react-icons/lu";
 import { FaQuestion } from "react-icons/fa";
@@ -11,12 +12,14 @@ export default function Home() {
                     <h1 className="text-6xl font-bold text-black">Can&apos;t fix your device?</h1>
                     <p className="text-xl text-black">Search FAQs for answers. Still need help? Raise a ticket!</p>
                     <div className="flex gap-4">
-                        <Button className="w-fit h-12 bg-blue-500 rounded-full text-white hover:bg-blue-600">
-                            <LuTicketCheck />
-                            Raise a Ticket
-                        </Button>
+                        <Link href="/tickets/create">
+                            <Button className="w-fit h-12 bg-blue-500 rounded-full text-white hover:bg-blue-600">
+                                <LuTicketCheck className="mr-2" />
+                                Raise a Ticket
+                            </Button>
+                        </Link>
                         <Button className="w-fit h-12 bg-white rounded-full text-blue-600 hover:bg-blue-50 outline">
-                            <FaQuestion />
+                            <FaQuestion className="mr-2" />
                             View FAQs
                         </Button>
                     </div>
