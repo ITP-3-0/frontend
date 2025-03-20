@@ -25,7 +25,7 @@ export const AuthProvider = ({ children }) => {
         });
     }, []);
 
-    return <AuthContext.Provider value={{ user, loading }}>{children}</AuthContext.Provider>;
+    return <AuthContext.Provider value={{ user, loading, setLoading }}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => useContext(AuthContext);
