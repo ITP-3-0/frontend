@@ -304,7 +304,7 @@ export function UserManagement({ props }) {
             </div>
 
             {/* Pagination */}
-            {/* {filteredUsers.length > 0 && (
+            {filteredUsers.length > 0 && (
                 <div className="flex items-center justify-between">
                     <div className="text-sm text-muted-foreground">
                         Showing {indexOfFirstUser + 1} to {Math.min(indexOfLastUser, filteredUsers.length)} of {filteredUsers.length} users
@@ -333,7 +333,7 @@ export function UserManagement({ props }) {
                         </Button>
                     </div>
                 </div>
-            )} */}
+            )}
 
             {showFileUploader && <FileUploader onClose={() => setShowFileUploader(false)} onUpload={handleFileUpload} />}
 
