@@ -18,20 +18,18 @@ import {
 import { FileUploader } from "./FileUploader";
 import { AddUserDialog } from "./AddUserDialog";
 import { EditUserDialog } from "./EditUserDialog";
+import { registerAdmin } from "@/Firebase/FirebaseFunctions";
 
 export function UserManagement({ props }) {
     const [users, setUsers] = useState([]);
     const [filteredUsers, setFilteredUsers] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
-    const [currentPage, setCurrentPage] = useState(1);
     const [showAddUserDialog, setShowAddUserDialog] = useState(false);
     const [showEditUserDialog, setShowEditUserDialog] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
     const [showFileUploader, setShowFileUploader] = useState(false);
     const [roleFilter, setRoleFilter] = useState("all");
-
-    const usersPerPage = 10;
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -74,14 +72,16 @@ export function UserManagement({ props }) {
         }
 
         setFilteredUsers(result);
-        setCurrentPage(1); // Reset to first page when filters change
     }, [searchQuery, roleFilter, users]);
 
-    const handleAddUser = (newUser) => {
-        // In a real app, you would make an API call here
-        const updatedUsers = [...users, { ...newUser, id: Date.now() }];
-        setUsers(updatedUsers);
-        setShowAddUserDialog(false);
+    const handleAddUser = async (newUser) => {
+        try {
+            registerAdmin(newUser.email, newUser.password, newUser.username, newUser.role, newUser.censusNo);
+        } catch (error) {
+            window.alert("An error occurred. Error: " + error.message);
+        } finally {
+            setShowAddUserDialog(false);
+        }
     };
 
     const handleEditUser = (updatedUser) => {
@@ -103,12 +103,6 @@ export function UserManagement({ props }) {
         // For testing
         alert(`Successfully processed file with ${fileData.length} records`);
     };
-
-    // Calculate pagination
-    const indexOfLastUser = currentPage * usersPerPage;
-    const indexOfFirstUser = indexOfLastUser - usersPerPage;
-    const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
-    const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
 
     // User stats
     const userStats = {
@@ -215,18 +209,6 @@ export function UserManagement({ props }) {
                 </div>
             </div>
 
-            {/* Role filter badges */}
-            {/* {roleFilter !== "all" && (
-                <div className="flex gap-2">
-                    <Badge variant="outline" className="flex items-center gap-1">
-                        Role: {roleFilter}
-                        <button className="ml-1 rounded-full hover:bg-muted p-1" onClick={() => setRoleFilter("all")}>
-                            ×
-                        </button>
-                    </Badge>
-                </div>
-            )} */}
-
             {/* Users Table */}
             <div className="border rounded-md">
                 <Table>
@@ -246,14 +228,14 @@ export function UserManagement({ props }) {
                                     Loading users...
                                 </TableCell>
                             </TableRow>
-                        ) : currentUsers.length === 0 ? (
+                        ) : filteredUsers.length === 0 ? (
                             <TableRow>
                                 <TableCell colSpan={5} className="text-center py-10">
                                     No users found. Try adjusting your filters.
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            currentUsers.map((user) => (
+                            filteredUsers.map((user) => (
                                 <TableRow key={user.id}>
                                     <TableCell className="font-medium">{user.username}</TableCell>
                                     <TableCell>{user.censusNo}</TableCell>
@@ -302,38 +284,6 @@ export function UserManagement({ props }) {
                     </TableBody>
                 </Table>
             </div>
-
-            {/* Pagination */}
-            {filteredUsers.length > 0 && (
-                <div className="flex items-center justify-between">
-                    <div className="text-sm text-muted-foreground">
-                        Showing {indexOfFirstUser + 1} to {Math.min(indexOfLastUser, filteredUsers.length)} of {filteredUsers.length} users
-                    </div>
-                    <div className="flex items-center space-x-2">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                            disabled={currentPage === 1}
-                        >
-                            <ChevronLeft className="h-4 w-4" />
-                            <span className="sr-only">Previous page</span>
-                        </Button>
-                        <div className="text-sm font-medium">
-                            Page {currentPage} of {totalPages}
-                        </div>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                            disabled={currentPage === totalPages}
-                        >
-                            <ChevronRight className="h-4 w-4" />
-                            <span className="sr-only">Next page</span>
-                        </Button>
-                    </div>
-                </div>
-            )}
 
             {showFileUploader && <FileUploader onClose={() => setShowFileUploader(false)} onUpload={handleFileUpload} />}
 
