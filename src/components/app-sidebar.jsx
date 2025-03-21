@@ -20,9 +20,8 @@ export function AppSidebar({ ...props }) {
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <Link href="/dashboard" className="flex flex-col items-center gap-2">
+                        <Link href="/dashboard" className="flex flex-col items-center mb-5">
                             <Image src="/eguru.svg" alt="E-Guru Logo" width={80} height={80} />
-                            <span className="text-2xl font-semibold mb-5">Admin Dashboard</span>
                         </Link>
                     </SidebarMenuItem>
                 </SidebarMenu>
@@ -32,19 +31,21 @@ export function AppSidebar({ ...props }) {
                     <SidebarMenuItem className="hover:bg-gray-200 p-2 my-2 rounded-md">
                         <Link href="/dashboard/user-management" className="flex items-center gap-2 text-gray-700 hover:text-gray-900">
                             <UsersIcon />
-                            <span>User Management</span>
+                            <span className="font-semibold">User Management</span>
                         </Link>
                     </SidebarMenuItem>
                     <SidebarMenuItem className="hover:bg-gray-200 p-2 my-2 rounded-md">
                         <Link href="/dashboard/announcements" className="flex items-center gap-2 text-gray-700 hover:text-gray-900">
                             <Bell />
-                            <span>Notification Center</span>
+
+                            <span className="font-semibold">Notification Center</span>
+
                         </Link>
                     </SidebarMenuItem>
                     <SidebarMenuItem className="hover:bg-gray-200 p-2 my-2 rounded-md">
                         <Link href="/dashboard/settings" className="flex items-center gap-2 text-gray-700 hover:text-gray-900">
                             <Settings2 />
-                            <span>Settings</span>
+                            <span className="font-semibold">Settings</span>
                         </Link>
                     </SidebarMenuItem>
                 </SidebarMenu>
