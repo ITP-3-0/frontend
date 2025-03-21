@@ -19,6 +19,7 @@ import { FileUploader } from "./FileUploader";
 import { AddUserDialog } from "./AddUserDialog";
 import { EditUserDialog } from "./EditUserDialog";
 import { registerAdmin } from "@/Firebase/FirebaseFunctions";
+import { useButton } from "@/app/Contexts/ButtonContext";
 
 export function UserManagement({ props }) {
     const [users, setUsers] = useState([]);
@@ -30,6 +31,7 @@ export function UserManagement({ props }) {
     const [selectedUser, setSelectedUser] = useState(null);
     const [showFileUploader, setShowFileUploader] = useState(false);
     const [roleFilter, setRoleFilter] = useState("all");
+    const { button, setButton } = useButton();
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -84,17 +86,45 @@ export function UserManagement({ props }) {
         }
     };
 
-    const handleEditUser = (updatedUser) => {
-        // In a real app, you would make an API call here
-        const updatedUsers = users.map((user) => (user.id === updatedUser.id ? updatedUser : user));
-        setUsers(updatedUsers);
-        setShowEditUserDialog(false);
+    const handleEditUser = async (updatedUser) => {
+        try {
+            setButton(true);
+            const userData = {
+                _id: updatedUser.id,
+                username: updatedUser.username,
+                censusNo: updatedUser.censusNo, // Ensure censusNo is included
+                role: updatedUser.role,
+            };
+
+            await fetch(`/api/users/${updatedUser.id}`, {
+                // Await the fetch call
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(userData),
+            });
+
+            setShowEditUserDialog(false); // Close the dialog after saving
+        } catch (error) {
+            window.alert("An error occurred. Error: " + error.message);
+        } finally {
+            setButton(false);
+        }
     };
 
     const handleDeleteUser = (userId) => {
-        // In a real app, you would make an API call here
-        const updatedUsers = users.filter((user) => user.id !== userId);
-        setUsers(updatedUsers);
+        if (window.confirm("Are you sure you want to delete this user?")) {
+            fetch(`/api/users/${userId}`, {
+                method: "DELETE",
+            })
+                .catch((error) => {
+                    window.alert("An error occurred. Error: " + error.message);
+                })
+                .finally(() => {
+                    window.location.reload();
+                });
+        }
     };
 
     const handleFileUpload = (fileData) => {
@@ -104,13 +134,11 @@ export function UserManagement({ props }) {
         alert(`Successfully processed file with ${fileData.length} records`);
     };
 
-    // User stats
     const userStats = {
         total: users.length,
         admins: users.filter((user) => user.role === "admin").length,
         users: users.filter((user) => user.role === "client").length,
-        agent: users.filter((user) => user.role === "agent_l1").length,
-        agent: users.filter((user) => user.role === "agent_l2").length,
+        agent: users.filter((user) => user.role === "agent_l1" || user.role === "agent_l2").length,
     };
 
     return (
@@ -271,7 +299,7 @@ export function UserManagement({ props }) {
                                                 </DropdownMenuItem>
                                                 <DropdownMenuItem
                                                     className="text-destructive focus:text-destructive"
-                                                    onClick={() => handleDeleteUser(user.id)}
+                                                    onClick={() => handleDeleteUser(user._id)}
                                                 >
                                                     Delete
                                                 </DropdownMenuItem>

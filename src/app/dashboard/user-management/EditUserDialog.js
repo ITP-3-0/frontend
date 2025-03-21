@@ -6,24 +6,24 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useButton } from "@/app/Contexts/ButtonContext";
+import { Spinner } from "@/components/ui/spinner";
 
 export function EditUserDialog({ user, onClose, onSave }) {
+    const { button, setButton } = useButton();
+
     const [formData, setFormData] = useState({
         id: "",
         username: "",
-        email: "",
         censusNo: "",
         role: "user",
     });
 
-    const [errors, setErrors] = useState({});
-
     useEffect(() => {
         if (user) {
             setFormData({
-                id: user.id,
+                id: user._id,
                 username: user.username || "",
-                email: user.email || "",
                 censusNo: user.censusNo || "",
                 role: user.role || "user",
             });
@@ -33,39 +33,20 @@ export function EditUserDialog({ user, onClose, onSave }) {
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
-
-        // Clear error when field is edited
-        if (errors[name]) {
-            setErrors((prev) => ({ ...prev, [name]: "" }));
-        }
     };
 
     const handleRoleChange = (value) => {
         setFormData((prev) => ({ ...prev, role: value }));
     };
 
-    const validateForm = () => {
-        const newErrors = {};
-
-        if (!formData.username.trim()) {
-            newErrors.username = "Username is required";
-        }
-
-        if (!formData.email.trim()) {
-            newErrors.email = "Email is required";
-        } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-            newErrors.email = "Email is invalid";
-        }
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
-
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-
-        if (validateForm()) {
-            onSave(formData);
+        try {
+            await onSave(formData);
+            onClose();
+            window.location.reload();
+        } catch (error) {
+            console.error("Error saving user:", error);
         }
     };
 
@@ -80,27 +61,7 @@ export function EditUserDialog({ user, onClose, onSave }) {
                     <div className="grid gap-4 py-4">
                         <div className="grid gap-2">
                             <Label htmlFor="username">Username</Label>
-                            <Input
-                                id="username"
-                                name="username"
-                                value={formData.username}
-                                onChange={handleChange}
-                                className={errors.username ? "border-destructive" : ""}
-                            />
-                            {errors.username && <p className="text-xs text-destructive">{errors.username}</p>}
-                        </div>
-
-                        <div className="grid gap-2">
-                            <Label htmlFor="email">Email</Label>
-                            <Input
-                                id="email"
-                                name="email"
-                                type="email"
-                                value={formData.email}
-                                onChange={handleChange}
-                                className={errors.email ? "border-destructive" : ""}
-                            />
-                            {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
+                            <Input id="username" name="username" value={formData.username} onChange={handleChange} />
                         </div>
 
                         <div className="grid gap-2">
@@ -115,8 +76,9 @@ export function EditUserDialog({ user, onClose, onSave }) {
                                     <SelectValue placeholder="Select role" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="user">User</SelectItem>
-                                    <SelectItem value="staff">Staff</SelectItem>
+                                    <SelectItem value="client">User</SelectItem>
+                                    <SelectItem value="agent_l1">Agent L1</SelectItem>
+                                    <SelectItem value="agent_l2">Agent L2</SelectItem>
                                     <SelectItem value="admin">Admin</SelectItem>
                                 </SelectContent>
                             </Select>
@@ -126,7 +88,7 @@ export function EditUserDialog({ user, onClose, onSave }) {
                         <Button variant="outline" type="button" onClick={onClose}>
                             Cancel
                         </Button>
-                        <Button type="submit">Save Changes</Button>
+                        <Button type="submit">{button ? <Spinner /> : "Save Changes"}</Button>
                     </DialogFooter>
                 </form>
             </DialogContent>
