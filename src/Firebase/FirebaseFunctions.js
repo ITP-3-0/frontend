@@ -87,8 +87,16 @@ export const registerAdmin = async (email, password, username, role, censusNo) =
 export const login = async (email, password) => {
     try {
         signInWithEmailAndPassword(auth, email, password)
-            .then(() => {
-                window.location.href = "/portal";
+            .then((data) => {
+                fetch(`/api/users/${data.user.uid}`).then((data) => {
+                    data.json().then((data) => {
+                        if (data.role === "client") {
+                            window.location.href = "/portal";
+                        } else {
+                            window.location.href = "/dashboard";
+                        }
+                    });
+                });
             })
             .catch((error) => {
                 if (error.code === "auth/invalid-credential") {
