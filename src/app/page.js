@@ -8,6 +8,8 @@ import { redirect } from "next/navigation";
 import { useAuth } from "@/Firebase/AuthContext";
 import NavBar from "./_Components/NavBar";
 import { Spinner } from "@/components/ui/spinner";
+import { ChatWidget } from "@/components/chat-widget"
+
 
 export default function Home() {
     const { loading } = useAuth();
@@ -40,6 +42,8 @@ export default function Home() {
                 </div>
                 <div className="w-1/2">
                     <Image src="/women_on_homepage.png" alt="Support" width={900} height={900} className="absolute bottom-0 right-0" />
+                    {/* Chat Widget */}
+      <ChatWidget />
                 </div>
             </div>
         </div>
