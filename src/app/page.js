@@ -1,12 +1,31 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { LuTicketCheck } from "react-icons/lu";
 import { FaQuestion } from "react-icons/fa";
+import { redirect } from "next/navigation";
+import { useAuth } from "@/Firebase/AuthContext";
+import NavBar from "./_Components/NavBar";
+import { Spinner } from "@/components/ui/spinner";
+import { ChatWidget } from "@/components/chat-widget"
+
 
 export default function Home() {
+    const { loading } = useAuth();
+
+    if (loading) {
+        return (
+            <div className="h-screen flex items-center justify-center">
+                <Spinner />
+            </div>
+        );
+    }
+
     return (
         <div className="h-screen bg-gradient-to-br from-blue-100 via-blue-300 to-blue-500">
+            <NavBar />
             <div className="flex items-center justify-between px-20 h-full pt-20">
                 <div className="flex flex-col gap-4 w-1/2">
                     <h1 className="text-6xl font-bold text-black">Can&apos;t fix your device?</h1>
@@ -26,6 +45,8 @@ export default function Home() {
                 </div>
                 <div className="w-1/2">
                     <Image src="/women_on_homepage.png" alt="Support" width={900} height={900} className="absolute bottom-0 right-0" />
+                    {/* Chat Widget */}
+      <ChatWidget />
                 </div>
             </div>
         </div>
