@@ -169,13 +169,15 @@ export default function TicketList({ tickets }) {
                             <Table>
                                 <TableHeader>
                                     <TableRow>
-                                        <TableHead>Title</TableHead>
-                                        <TableHead className="hidden md:table-cell">Description</TableHead>
-                                        <TableHead className="hidden lg:table-cell">Device</TableHead>
-                                        <TableHead className="hidden lg:table-cell">Distribution Date</TableHead>
-                                        <TableHead className="hidden md:table-cell">Agent</TableHead>
-                                        <TableHead>Priority</TableHead>
-                                        <TableHead className="text-right">Actions</TableHead>
+                                        <TableHead className="hidden md:table-cell font-bold">Title</TableHead>
+                                        <TableHead className="hidden md:table-cell font-bold">Description</TableHead>
+                                        <TableHead className="hidden lg:table-cell font-bold">Device</TableHead>
+                                        <TableHead className="hidden lg:table-cell font-bold">Distribution Date</TableHead>
+                                        <TableHead className="hidden lg:table-cell font-bold">Warranty Period (Months)</TableHead>
+                                        <TableHead className="hidden lg:table-cell font-bold">With/Without Warranty</TableHead>
+                                        <TableHead className="hidden md:table-cell font-bold">Agent</TableHead>
+                                        <TableHead className="hidden md:table-cell font-bold">Priority</TableHead>
+                                        <TableHead className="text-right font-bold">Actions</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -197,8 +199,28 @@ export default function TicketList({ tickets }) {
                                                     {ticket.description}
                                                 </TableCell>
                                                 <TableCell className="hidden lg:table-cell">{ticket.deviceName || "N/A"}</TableCell>
-                                                <TableCell className="hidden lg:table-cell">
+                                                <TableCell className="hidden lg:table-cell text-center">
                                                     {new Date(ticket.distributionDate).toLocaleDateString()}
+                                                </TableCell>
+                                                <TableCell className="hidden md:table-cell max-w-[200px] truncate text-center">
+                                                    {ticket.warrantyPeriod}
+                                                </TableCell>
+                                                <TableCell className="hidden lg:table-cell">
+                                                    {(() => {
+                                                        const currentDate = new Date();
+                                                        const distributionDate = new Date(ticket.distributionDate);
+
+                                                        const warrantyPeriod = new Date(ticket.warrantyPeriod);
+
+                                                        const expirationDate = new Date(distributionDate);
+                                                        expirationDate.setMonth(expirationDate.getMonth() + warrantyPeriod.getMonth());
+
+                                                        if (currentDate > expirationDate) {
+                                                            return "Warranty Expired";
+                                                        } else {
+                                                            return "With Warranty";
+                                                        }
+                                                    })()}
                                                 </TableCell>
                                                 <TableCell className="hidden md:table-cell">{ticket.agentName || "N/A"}</TableCell>
                                                 <TableCell>{getPriorityBadge(ticket.priority)}</TableCell>
