@@ -12,8 +12,11 @@ export default function ReplyDetails() {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        if (!replyId) return setLoading(false);
-        
+        if (!replyId) {
+            setLoading(false);
+            return;
+        }
+
         fetch(`/api/replies/${replyId}`)
             .then((res) => res.json())
             .then((data) => {
@@ -34,36 +37,48 @@ export default function ReplyDetails() {
     };
 
     const handleSubmit = async (e) => {
-      e.preventDefault();
-      
-      try {
-          const response = await fetch(`/api/replies/${replyId || "new"}`, {
-              method: replyId ? "PUT" : "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(reply),
-          });
-  
-          const responseData = await response.json();
-          console.log("API Response:", responseData);
-  
-          if (!response.ok) {
-              throw new Error(responseData?.message || "Failed to submit reply");
-          }
-  
-          router.push("/replies");
-      } catch (err) {
-          console.error("Error:", err.message);
-          setError(err.message);
-      }
-  };
-  
+        e.preventDefault();
+
+        try {
+            let updatedReply = { ...reply };
+
+            if (!replyId) {
+                // Remove _id field when creating a new reply
+                delete updatedReply._id;
+            }
+
+            const response = await fetch(`/api/replies/${replyId || ""}`, {
+                method: replyId ? "PUT" : "POST", // Use PUT for updates and POST for new replies
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(updatedReply),
+            });
+
+            const text = await response.text();
+
+            try {
+                const responseData = JSON.parse(text);
+                console.log("API Response:", responseData);
+                if (!response.ok) {
+                    throw new Error(responseData?.message || "Failed to submit reply");
+                }
+            } catch (jsonError) {
+                throw new Error("Server returned invalid JSON: " + text);
+            }
+
+            router.push("/replies");
+        } catch (err) {
+            console.error("Error:", err.message);
+            setError(err.message);
+        }
+    };
+
 
     if (loading) return <p>Loading...</p>;
     if (error) return <p>Error: {error}</p>;
 
     return (
         <div className="p-6">
-            <h1 className="text-2xl font-bold mb-4">{replyId ? "Create Reply" : "Edit Reply"}</h1>
+            <h1 className="text-2xl font-bold mb-4">{replyId ? "Edit Reply" : "Create Reply"}</h1>
             <form onSubmit={handleSubmit} className="bg-white shadow-md rounded-lg p-4">
                 <div className="mb-4">
                     <label className="block text-gray-700">Creator</label>

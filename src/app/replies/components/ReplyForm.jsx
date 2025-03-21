@@ -20,7 +20,7 @@ const ReplyForm = ({ existingReply }) => {
             } else {
                 await axios.post("/replies", replyData);
             }
-            window.location.href = "/replies"; // Redirect to replies list
+            window.location.href = "/replies"; 
         } catch (err) {
             console.error("Error saving reply:", err);
         }

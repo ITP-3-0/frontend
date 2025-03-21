@@ -52,7 +52,7 @@ export default function ReplyList() {
     };
 
     const handleEdit = (id) => {
-        router.push(`/replies/edit/${id}`);  // Use router.push for navigation to the edit page
+        router.push(`/replies/edit/${id}`);  
     };
 
     if (loading) return <p>Loading...</p>;
