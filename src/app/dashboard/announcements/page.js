@@ -172,7 +172,7 @@ export default function Notifications() {
                     Send Announcement
                   </CardTitle>
                   <CardDescription className="mt-1">
-                    Create and send announcements to your team or clients
+                    Create and send announcements to your team or Teachers
                   </CardDescription>
                 </div>
               </div>
