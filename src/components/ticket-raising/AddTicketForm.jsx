@@ -127,7 +127,7 @@ export default function CreateTicketPage() {
 
     return (
         <div className="container mx-auto py-6 px-4 md:px-6 max-w-4xl">
-            <Button variant="ghost" className="mb-6 -ml-2 text-muted-foreground" onClick={() => router.push("/tickets")}>
+            <Button variant="ghost" className="mb-6 -ml-2 text-muted-foreground" onClick={() => router.push("/tickets/ticketList")}>
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to tickets
             </Button>
@@ -295,7 +295,7 @@ export default function CreateTicketPage() {
                         </CardContent>
 
                         <CardFooter className="flex justify-end space-x-2">
-                            <Button type="button" variant="outline" onClick={() => router.push("/tickets")}>
+                            <Button type="button" variant="outline" onClick={() => router.push("/tickets/ticketList")}>
                                 Cancel
                             </Button>
                             <Button type="submit" disabled={isSubmitting}>

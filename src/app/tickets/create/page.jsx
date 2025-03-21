@@ -4,7 +4,6 @@ import AddTicketForm from '@/components/ticket-raising/AddTicketForm'
 export default function CreateTicketPage() {
     return (
         <div>
-            <NavBar />
             <AddTicketForm />
         </div>
     );
