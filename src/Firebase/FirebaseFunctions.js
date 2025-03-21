@@ -44,6 +44,46 @@ export const register = async (email, password, censusNo) => {
     }
 };
 
+// registering users from admin panel
+
+export const registerAdmin = async (email, password, username, role, censusNo) => {
+    try {
+        createUserWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+                const user = userCredential.user;
+                // API call to store user in database
+                fetch("/api/users", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        _id: user.uid,
+                        username: username,
+                        censusNo: censusNo ? censusNo : "",
+                        email: email,
+                        role: role,
+                    }),
+                });
+            })
+            .then(() => {
+                window.location.reload();
+            })
+            .catch((error) => {
+                if (error.code === "auth/email-already-in-use") {
+                    toast.error("Email is already in use. Please try again.");
+                } else if (error.code === "auth/weak-password") {
+                    toast.error("Password is too weak. Please try again.");
+                } else {
+                    toast.error(error.message);
+                }
+            });
+    } catch (error) {
+        toast.error("An error occurred. Error: " + error.message);
+        return error;
+    }
+};
+
 export const login = async (email, password) => {
     try {
         signInWithEmailAndPassword(auth, email, password)

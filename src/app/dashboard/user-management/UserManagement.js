@@ -18,6 +18,7 @@ import {
 import { FileUploader } from "./FileUploader";
 import { AddUserDialog } from "./AddUserDialog";
 import { EditUserDialog } from "./EditUserDialog";
+import { registerAdmin } from "@/Firebase/FirebaseFunctions";
 
 export function UserManagement({ props }) {
     const [users, setUsers] = useState([]);
@@ -73,11 +74,14 @@ export function UserManagement({ props }) {
         setFilteredUsers(result);
     }, [searchQuery, roleFilter, users]);
 
-    const handleAddUser = (newUser) => {
-        // In a real app, you would make an API call here
-        const updatedUsers = [...users, { ...newUser, id: Date.now() }];
-        setUsers(updatedUsers);
-        setShowAddUserDialog(false);
+    const handleAddUser = async (newUser) => {
+        try {
+            registerAdmin(newUser.email, newUser.password, newUser.username, newUser.role, newUser.censusNo);
+        } catch (error) {
+            window.alert("An error occurred. Error: " + error.message);
+        } finally {
+            setShowAddUserDialog(false);
+        }
     };
 
     const handleEditUser = (updatedUser) => {

@@ -12,7 +12,7 @@ export function AddUserDialog({ onClose, onSave }) {
         username: "",
         email: "",
         censusNo: "",
-        role: "user",
+        role: "client",
         password: "",
     });
 
@@ -109,8 +109,9 @@ export function AddUserDialog({ onClose, onSave }) {
                                     <SelectValue placeholder="Select role" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="user">User</SelectItem>
-                                    <SelectItem value="staff">Staff</SelectItem>
+                                    <SelectItem value="client">Client</SelectItem>
+                                    <SelectItem value="agent_l1">Agent L1</SelectItem>
+                                    <SelectItem value="agent_l2">Agent L2</SelectItem>
                                     <SelectItem value="admin">Admin</SelectItem>
                                 </SelectContent>
                             </Select>
