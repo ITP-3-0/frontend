@@ -30,13 +30,24 @@ export default function CreateTicketPage() {
     };
 
     const handleQrScan = (deviceData) => {
-        setFormData((prev) => ({
-            ...prev,
-            deviceName: deviceData.deviceName || "",
-            distributionDate: deviceData.distributionDate || "",
-            warrantyPeriod: deviceData.warrantyPeriod || "",
-            agentName: deviceData.agentName || "",
-        }));
+        try {
+            // Assuming deviceData is a CSV string like "DeviceName,2025-03-21,12 months,John"
+            const dataParts = deviceData.split(",");
+
+            if (dataParts.length === 4) {
+                setFormData((prev) => ({
+                    ...prev,
+                    deviceName: dataParts[0] || "",
+                    distributionDate: dataParts[1] || "",
+                    warrantyPeriod: dataParts[2] || "",
+                    agentName: dataParts[3] || "",
+                }));
+            } else {
+                setErrorMessage("QR code data is invalid. Please scan a valid QR code.");
+            }
+        } catch (error) {
+            setErrorMessage("Failed to process QR code. Please try again.");
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -73,10 +84,9 @@ export default function CreateTicketPage() {
     };
 
     return (
-        <div className="container mx-auto py-10 px-4">
-            <div className="max-w-2xl mx-auto">
-                <h1 className="text-2xl font-bold mb-6">Create New Ticket</h1>
-
+        <div className="flex items-center justify-center min-h-screen bg-gray-100 py-10 px-4">
+            <div className="max-w-2xl w-full">
+                <h1 className="text-2xl font-bold mb-6 text-center">Create Ticket</h1>
                 {errorMessage && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{errorMessage}</div>}
 
                 <div className="flex justify-end mb-4">
@@ -200,7 +210,7 @@ export default function CreateTicketPage() {
                     </div>
 
                     <div className="flex justify-end space-x-2">
-                        <Button type="button" variant="outline" onClick={() => router.push("/tickets")}>
+                        <Button type="button" variant="outline" onClick={() => router.push("/tickets/ticketList")}>
                             Cancel
                         </Button>
                         <Button type="submit" disabled={isSubmitting}>

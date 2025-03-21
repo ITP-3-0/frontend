@@ -23,7 +23,7 @@ export default function QrScanner({ onScanSuccess }) {
                         const deviceData = JSON.parse(decodedText);
                         onScanSuccess(deviceData);
                     } catch (jsonError) {
-                        
+
                         const deviceData = {};
 
                         const parts = decodedText.split(',');

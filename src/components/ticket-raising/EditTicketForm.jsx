@@ -22,32 +22,36 @@ export default function EditTicketPage({ params }) {
         priority: 'medium',
     });
 
+    // Refactor to async function inside useEffect
     useEffect(() => {
-        const fetchTicket = async () => {
-            try {
-                const response = await fetch(`/api/tickets/${id}`);
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Failed to fetch ticket');
-                }
-
-                const data = await response.json();
-                setFormData({
-                    title: data.ticket.title,
-                    description: data.ticket.description,
-                    deviceName: data.ticket.deviceName || '',
-                    distributionDate: data.ticket.distributionDate || '',
-                    warrantyPeriod: data.ticket.warrantyPeriod || '',
-                    agentName: data.ticket.agentName || '',
-                    priority: data.ticket.priority,
+        const fetchTicket = () => {
+            fetch(`http://localhost:5000/tickets/${id}`)
+                .then((response) => {
+                    if (!response.ok) {
+                        return response.text().then((errorData) => {
+                            throw new Error(errorData || 'Failed to fetch ticket');
+                        });
+                    }
+                    return response.json();
+                })
+                .then((data) => {
+                    setFormData({
+                        title: data.ticket.title,
+                        description: data.ticket.description,
+                        deviceName: data.ticket.deviceName || '',
+                        distributionDate: data.ticket.distributionDate || '',
+                        warrantyPeriod: data.ticket.warrantyPeriod || '',
+                        agentName: data.ticket.agentName || '',
+                        priority: data.ticket.priority,
+                    });
+                })
+                .catch((error) => {
+                    console.error('Error fetching ticket:', error);
+                    setError(error.message || 'An unexpected error occurred');
+                })
+                .finally(() => {
+                    setIsLoading(false);
                 });
-            } catch (error) {
-                console.error('Error fetching ticket:', error);
-                setError(error.message || 'An unexpected error occurred');
-            } finally {
-                setIsLoading(false);
-            }
         };
 
         fetchTicket();
@@ -55,7 +59,7 @@ export default function EditTicketPage({ params }) {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
     const handleSubmit = async (e) => {
@@ -63,14 +67,15 @@ export default function EditTicketPage({ params }) {
         setIsSubmitting(true);
 
         try {
-            const response = await fetch(`/api/tickets/${id}`, {
+            const response = await fetch(`http://localhost:5000/tickets/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData),
             });
 
             if (!response.ok) {
-                throw new Error('Failed to update ticket');
+                const errorData = await response.text();
+                throw new Error(errorData || 'Failed to update ticket');
             }
 
             router.push("/tickets/ticketList");
@@ -91,8 +96,8 @@ export default function EditTicketPage({ params }) {
     }
 
     return (
-        <div className="container mx-auto py-10 px-4">
-            <div className="max-w-2xl mx-auto">
+        <div className="flex items-center justify-center min-h-screen bg-gray-100 py-10 px-4">
+            <div className="max-w-2xl w-full">
                 <h1 className="text-2xl font-bold mb-6">Edit Ticket</h1>
 
                 <form onSubmit={handleSubmit} className="space-y-6 bg-white p-6 rounded-lg shadow">
@@ -217,7 +222,7 @@ export default function EditTicketPage({ params }) {
                         <Button
                             type="button"
                             variant="outline"
-                            onClick={() => router.push('/tickets')}
+                            onClick={() => router.push('/tickets/ticketList')}
                         >
                             Cancel
                         </Button>
