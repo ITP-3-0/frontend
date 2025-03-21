@@ -8,11 +8,14 @@ export default function ReplyList() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch("http://localhost:5000/replies/") 
+        // THIS IS THE URL FORMAT FOR THE API.
+        // DO NOT USE URL AS http://localhost:5000/api/replies
+        // INSTEAD USE /api/replies
+        fetch("/api/replies")
             .then((res) => res.json())
             .then((data) => {
-                console.log("API Response:", data); 
-                setReplies(data.replies || []); 
+                console.log("API Response:", data);
+                setReplies(data.replies || []);
                 setLoading(false);
             })
             .catch((err) => {
