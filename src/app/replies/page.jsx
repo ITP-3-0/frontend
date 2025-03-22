@@ -15,9 +15,9 @@ export default function ReplyList() {
         fetch("api/replies/")
             .then((res) => {
                 if (!res.ok) {
-                    throw new Error("Failed to fetch replies");
                 }
                 return res.json();
+                    throw new Error("Failed to fetch replies");
             })
             .then((data) => {
                 console.log("API Response:", data);
@@ -79,7 +79,7 @@ export default function ReplyList() {
                             <tr key={reply._id} className="border-b hover:bg-gray-50">
                                 <td className="py-2 px-4">{reply.creator}</td>
                                 <td className="py-2 px-4">{reply.description}</td>
-                                <td className="py-2 px-4">{getTicketId(reply.relatedTickets)}</td>
+                                <td className="py-2 px-4">{reply.relatedTickets}</td>
                                 <td className="py-2 px-4 space-x-2">
                                     <Button onClick={() => handleEdit(reply._id)} className="text-yellow-500 hover:underline">
                                         Edit
