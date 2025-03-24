@@ -51,6 +51,15 @@ export function AddUserDialog({ onClose, onSave }) {
             newErrors.password = "Password must be at least 6 characters";
         }
 
+        // validation
+        if (formData.censusNo && isNaN(formData.censusNo)) {
+            newErrors.censusNo = "Census Number must be numeric";
+        }
+
+        if (!formData.role) {
+            newErrors.role = "Role is required";
+        }
+
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -99,7 +108,14 @@ export function AddUserDialog({ onClose, onSave }) {
 
                         <div className="grid gap-2">
                             <Label htmlFor="censusNo">Census Number (Optional)</Label>
-                            <Input id="censusNo" name="censusNo" value={formData.censusNo} onChange={handleChange} />
+                            <Input
+                                id="censusNo"
+                                name="censusNo"
+                                value={formData.censusNo}
+                                onChange={handleChange}
+                                className={errors.censusNo ? "border-destructive" : ""}
+                            />
+                            {errors.censusNo && <p className="text-xs text-destructive">{errors.censusNo}</p>}
                         </div>
 
                         <div className="grid gap-2">
