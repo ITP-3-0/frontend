@@ -318,7 +318,7 @@ const SidebarGroupLabel = React.forwardRef(({ className, asChild = false, ...pro
 SidebarGroupLabel.displayName = "SidebarGroupLabel";
 
 const SidebarGroupAction = React.forwardRef(({ className, asChild = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : "button";
+    const Comp = asChild ? Slot : "div";
 
     return (
         <Comp
@@ -411,7 +411,7 @@ const SidebarMenuButton = React.forwardRef(
 SidebarMenuButton.displayName = "SidebarMenuButton";
 
 const SidebarMenuAction = React.forwardRef(({ className, asChild = false, showOnHover = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : "button";
+    const Comp = asChild ? Slot : "div";
 
     return (
         <Comp

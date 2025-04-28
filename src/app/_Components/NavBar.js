@@ -23,7 +23,7 @@ export default function NavBar() {
                 <Link className="text-black hover:underline" href="/help-desk">
                     Help Desk
                 </Link>
-                <Link className="text-black hover:underline" href="/forum">
+                <Link className="text-black hover:underline" href="/replies">
                     Forum
                 </Link>
                 <Link className="text-black hover:underline" href="/faqs">

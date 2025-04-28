@@ -46,12 +46,6 @@ export function FileUploader({ onClose, onUpload }) {
             return;
         }
 
-        // Check file size (5MB limit)
-        if (file.size > 5 * 1024 * 1024) {
-            setError("File size exceeds 5MB limit");
-            return;
-        }
-
         setFile(file);
     };
 
