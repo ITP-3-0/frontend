@@ -30,5 +30,9 @@ export default function TicketListPage() {
         return <div>Loading...</div>;
     }
 
-    return <TicketList tickets={tickets} />;
+    return (
+        <div>
+            <TicketList tickets={tickets} />
+        </div >
+    );
 }

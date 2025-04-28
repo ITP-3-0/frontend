@@ -30,6 +30,7 @@ export default function TicketList({ tickets }) {
     const [isLoading, setIsLoading] = useState(false)
     const [searchQuery, setSearchQuery] = useState("")
     const [selectedPriority, setSelectedPriority] = useState("all")
+    const [sortOption, setSortOption] = useState("newest") // Renamed to avoid scope issues
 
     const handleEdit = (id) => {
         router.push(`/tickets/${id}/edit`)
@@ -105,18 +106,44 @@ export default function TicketList({ tickets }) {
         setSelectedPriority(priority)
     }
 
+    const handleSortChange = (value) => {
+        setSortOption(value) // Update sort option state
+    }
+
+    // Sort tickets based on the selected sort option
+    const sortTickets = (ticketsToSort) => {
+        return [...ticketsToSort].sort((a, b) => {
+            // Use sortOption instead of sortBy
+            switch (sortOption) {
+                case "newest":
+                    return new Date(b.createdAt || b.distributionDate) - new Date(a.createdAt || a.distributionDate)
+                case "oldest":
+                    return new Date(a.createdAt || a.distributionDate) - new Date(b.createdAt || b.distributionDate)
+                case "title":
+                    return a.title.localeCompare(b.title)
+                case "priority":
+                    const priorityOrder = { high: 0, medium: 1, low: 2 }
+                    return priorityOrder[a.priority] - priorityOrder[b.priority]
+                default:
+                    return 0
+            }
+        })
+    }
+
     // Filter tickets based on search query and selected priority
-    const filteredTickets = ticketList.filter((ticket) => {
-        const matchesSearchQuery =
-            ticket.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            ticket.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            (ticket.agentName && ticket.agentName.toLowerCase().includes(searchQuery.toLowerCase())) ||
-            (ticket.deviceName && ticket.deviceName.toLowerCase().includes(searchQuery.toLowerCase()))
+    const filteredAndSortedTickets = sortTickets(
+        ticketList.filter((ticket) => {
+            const matchesSearchQuery =
+                ticket.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                ticket.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                (ticket.agentName && ticket.agentName.toLowerCase().includes(searchQuery.toLowerCase())) ||
+                (ticket.deviceName && ticket.deviceName.toLowerCase().includes(searchQuery.toLowerCase()))
 
-        const matchesPriority = selectedPriority === "all" || ticket.priority === selectedPriority
+            const matchesPriority = selectedPriority === "all" || ticket.priority === selectedPriority
 
-        return matchesSearchQuery && matchesPriority
-    })
+            return matchesSearchQuery && matchesPriority
+        }),
+    )
 
     return (
         <div className="container mx-auto py-6 px-4 md:px-6 max-w-7xl">
@@ -158,6 +185,19 @@ export default function TicketList({ tickets }) {
                                     </SelectContent>
                                 </Select>
                             </div>
+                            <div className="w-full sm:w-[180px]">
+                                <Select defaultValue="newest" onValueChange={handleSortChange}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Sort by" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="newest">Newest First</SelectItem>
+                                        <SelectItem value="oldest">Oldest First</SelectItem>
+                                        <SelectItem value="title">Title (A-Z)</SelectItem>
+                                        <SelectItem value="priority">Priority (High-Low)</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
                         </div>
                     </CardContent>
                 </Card>
@@ -169,21 +209,21 @@ export default function TicketList({ tickets }) {
                             <Table>
                                 <TableHeader>
                                     <TableRow>
-                                        <TableHead className="hidden md:table-cell font-bold">Title</TableHead>
-                                        <TableHead className="hidden md:table-cell font-bold">Description</TableHead>
-                                        <TableHead className="hidden lg:table-cell font-bold">Device</TableHead>
-                                        <TableHead className="hidden lg:table-cell font-bold">Distribution Date</TableHead>
-                                        <TableHead className="hidden lg:table-cell font-bold">Warranty Period (Months)</TableHead>
-                                        <TableHead className="hidden lg:table-cell font-bold">With/Without Warranty</TableHead>
-                                        <TableHead className="hidden md:table-cell font-bold">Agent</TableHead>
-                                        <TableHead className="hidden md:table-cell font-bold">Priority</TableHead>
-                                        <TableHead className="text-right font-bold">Actions</TableHead>
+                                        <TableHead>Title</TableHead>
+                                        <TableHead className="hidden md:table-cell">Description</TableHead>
+                                        <TableHead className="hidden lg:table-cell">Device</TableHead>
+                                        <TableHead className="hidden lg:table-cell">Distribution Date</TableHead>
+                                        <TableHead className="hidden lg:table-cell">Warranty Period</TableHead>
+                                        <TableHead className="hidden lg:table-cell">Warranty Status</TableHead>
+                                        <TableHead className="hidden md:table-cell">Agent</TableHead>
+                                        <TableHead>Priority</TableHead>
+                                        <TableHead className="text-right">Actions</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {filteredTickets.length === 0 ? (
+                                    {filteredAndSortedTickets.length === 0 ? (
                                         <TableRow>
-                                            <TableCell colSpan={7} className="text-center py-10 text-muted-foreground">
+                                            <TableCell colSpan={9} className="text-center py-10 text-muted-foreground">
                                                 <div className="flex flex-col items-center">
                                                     <LaptopIcon className="h-10 w-10 mb-2 text-muted-foreground/60" />
                                                     <p>No tickets found</p>
@@ -192,33 +232,53 @@ export default function TicketList({ tickets }) {
                                             </TableCell>
                                         </TableRow>
                                     ) : (
-                                        filteredTickets.map((ticket) => (
+                                        filteredAndSortedTickets.map((ticket) => (
                                             <TableRow key={ticket._id} className="group">
                                                 <TableCell className="font-medium">{ticket.title}</TableCell>
                                                 <TableCell className="hidden md:table-cell max-w-[200px] truncate">
                                                     {ticket.description}
                                                 </TableCell>
                                                 <TableCell className="hidden lg:table-cell">{ticket.deviceName || "N/A"}</TableCell>
-                                                <TableCell className="hidden lg:table-cell text-center">
+                                                <TableCell className="hidden lg:table-cell">
                                                     {new Date(ticket.distributionDate).toLocaleDateString()}
                                                 </TableCell>
-                                                <TableCell className="hidden md:table-cell max-w-[200px] truncate text-center">
-                                                    {ticket.warrantyPeriod}
-                                                </TableCell>
+                                                <TableCell className="hidden lg:table-cell">{ticket.warrantyPeriod}</TableCell>
                                                 <TableCell className="hidden lg:table-cell">
                                                     {(() => {
-                                                        const currentDate = new Date();
-                                                        const distributionDate = new Date(ticket.distributionDate);
+                                                        try {
+                                                            const currentDate = new Date()
+                                                            const distributionDate = new Date(ticket.distributionDate)
 
-                                                        const warrantyPeriod = new Date(ticket.warrantyPeriod);
+                                                            // Handle warranty period as a number
+                                                            let warrantyMonths = 0
+                                                            if (typeof ticket.warrantyPeriod === "number") {
+                                                                warrantyMonths = ticket.warrantyPeriod
+                                                            } else if (typeof ticket.warrantyPeriod === "string") {
+                                                                // Try to parse the string to get a number
+                                                                const match = ticket.warrantyPeriod.match(/\d+/)
+                                                                if (match) {
+                                                                    warrantyMonths = Number.parseInt(match[0], 10)
+                                                                }
+                                                            }
 
-                                                        const expirationDate = new Date(distributionDate);
-                                                        expirationDate.setMonth(expirationDate.getMonth() + warrantyPeriod.getMonth());
+                                                            const expirationDate = new Date(distributionDate)
+                                                            expirationDate.setMonth(expirationDate.getMonth() + warrantyMonths)
 
-                                                        if (currentDate > expirationDate) {
-                                                            return "Warranty Expired";
-                                                        } else {
-                                                            return "With Warranty";
+                                                            if (currentDate > expirationDate) {
+                                                                return (
+                                                                    <Badge variant="outline" className="bg-red-50 text-red-800 border-red-200">
+                                                                        Expired
+                                                                    </Badge>
+                                                                )
+                                                            } else {
+                                                                return (
+                                                                    <Badge variant="outline" className="bg-green-50 text-green-800 border-green-200">
+                                                                        Active
+                                                                    </Badge>
+                                                                )
+                                                            }
+                                                        } catch (error) {
+                                                            return "Unknown"
                                                         }
                                                     })()}
                                                 </TableCell>
@@ -281,4 +341,3 @@ export default function TicketList({ tickets }) {
         </div>
     )
 }
-

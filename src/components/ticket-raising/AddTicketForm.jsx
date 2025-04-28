@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, Loader2, QrCode } from "lucide-react"
+import { ArrowLeft, Loader2, QrCode } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -41,33 +41,24 @@ export default function CreateTicketPage() {
 
     const handleQrScan = (deviceData) => {
         try {
-            // Assuming deviceData is a CSV string like "DeviceName,2025-03-21,12 months,John"
-            const dataParts = deviceData.split(",")
+            console.log("Scanned QR Code Data:", deviceData) // Debugging the scanned data
 
-            if (dataParts.length === 4) {
-                setFormData((prev) => ({
-                    ...prev,
-                    deviceName: dataParts[0] || "",
-                    distributionDate: dataParts[1] || "",
-                    warrantyPeriod: dataParts[2] || "",
-                    agentName: dataParts[3] || "",
-                }))
+            // Use deviceData directly since it's already an object
+            setFormData((prev) => ({
+                ...prev,
+                deviceName: deviceData.deviceName || "",
+                distributionDate: deviceData.distributionDate || "",
+                warrantyPeriod: deviceData.warrantyPeriod || "",
+                agentName: deviceData.agentName || "",
+            }))
 
-                toast({
-                    title: "QR Code Scanned",
-                    description: "Device information has been loaded successfully",
-                    variant: "success",
-                })
-            } else {
-                setErrorMessage("QR code data is invalid. Please scan a valid QR code.")
-
-                toast({
-                    title: "Invalid QR Code",
-                    description: "The QR code format is not recognized",
-                    variant: "destructive",
-                })
-            }
+            toast({
+                title: "QR Code Scanned",
+                description: "Device information has been loaded successfully",
+                variant: "success",
+            })
         } catch (error) {
+            console.error("Error processing QR code:", error) // Log the error for debugging
             setErrorMessage("Failed to process QR code. Please try again.")
 
             toast({
@@ -155,23 +146,19 @@ export default function CreateTicketPage() {
                             variant="outline"
                             size="sm"
                             className="flex items-center gap-2"
-                            onClick={() => setShowQrScanner(!showQrScanner)}
+                            onClick={() => setShowQrScanner(true)}
                         >
                             <QrCode className="h-4 w-4" />
-                            {showQrScanner ? "Hide Scanner" : "Scan QR Code"}
+                            Scan QR Code
                         </Button>
                     </CardHeader>
 
+                    {/* QR Scanner Modal */}
                     {showQrScanner && (
-                        <div className="px-6 py-4 border-b">
-                            <div className="bg-muted p-4 rounded-lg">
-                                <h3 className="text-sm font-medium mb-2">Scan Device QR Code</h3>
-                                <QrScanner onScanSuccess={handleQrScan} />
-                                <p className="text-xs text-muted-foreground mt-2">
-                                    Position the QR code within the scanner frame to automatically fill device details
-                                </p>
-                            </div>
-                        </div>
+                        <QrScanner
+                            onScanSuccess={handleQrScan}
+                            onClose={() => setShowQrScanner(false)}
+                        />
                     )}
 
                     <form onSubmit={handleSubmit}>
@@ -199,68 +186,6 @@ export default function CreateTicketPage() {
                                     className="min-h-[120px]"
                                     required
                                 />
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="space-y-2">
-                                    <Label htmlFor="deviceName">Device Name</Label>
-                                    <Input
-                                        id="deviceName"
-                                        name="deviceName"
-                                        value={formData.deviceName}
-                                        onChange={handleChange}
-                                        placeholder="Device Name"
-                                        disabled={!!formData.deviceName}
-                                    />
-                                    {!!formData.deviceName && (
-                                        <p className="text-xs text-muted-foreground mt-1">Scan a different QR code to change</p>
-                                    )}
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="distributionDate">Distribution Date</Label>
-                                    <Input
-                                        id="distributionDate"
-                                        name="distributionDate"
-                                        value={formData.distributionDate}
-                                        onChange={handleChange}
-                                        placeholder="YYYY-MM-DD"
-                                        disabled={!!formData.distributionDate}
-                                    />
-                                    {!!formData.distributionDate && (
-                                        <p className="text-xs text-muted-foreground mt-1">Scan a different QR code to change</p>
-                                    )}
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="warrantyPeriod">Warranty Period</Label>
-                                    <Input
-                                        id="warrantyPeriod"
-                                        name="warrantyPeriod"
-                                        value={formData.warrantyPeriod}
-                                        onChange={handleChange}
-                                        placeholder="Warranty Period"
-                                        disabled={!!formData.warrantyPeriod}
-                                    />
-                                    {!!formData.warrantyPeriod && (
-                                        <p className="text-xs text-muted-foreground mt-1">Scan a different QR code to change</p>
-                                    )}
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="agentName">Agent Name</Label>
-                                    <Input
-                                        id="agentName"
-                                        name="agentName"
-                                        value={formData.agentName}
-                                        onChange={handleChange}
-                                        placeholder="Agent Name"
-                                        disabled={!!formData.agentName}
-                                    />
-                                    {!!formData.agentName && (
-                                        <p className="text-xs text-muted-foreground mt-1">Scan a different QR code to change</p>
-                                    )}
-                                </div>
                             </div>
 
                             <div className="space-y-3">
@@ -292,6 +217,77 @@ export default function CreateTicketPage() {
                                     </div>
                                 </RadioGroup>
                             </div>
+
+                            <div className="border-t pt-4">
+                                <div className="flex items-center justify-between mb-4">
+                                    <Label className="text-sm font-medium">Device Information</Label>
+                                    <div className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+                                        Use QR code to auto-fill
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="deviceName">Device Name</Label>
+                                        <Input
+                                            id="deviceName"
+                                            name="deviceName"
+                                            value={formData.deviceName}
+                                            onChange={handleChange}
+                                            placeholder="Device Name"
+                                            disabled={!!formData.deviceName}
+                                        />
+                                        {!!formData.deviceName && (
+                                            <p className="text-xs text-muted-foreground mt-1">Scan a different QR code to change</p>
+                                        )}
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="distributionDate">Distribution Date</Label>
+                                        <Input
+                                            id="distributionDate"
+                                            name="distributionDate"
+                                            value={formData.distributionDate}
+                                            onChange={handleChange}
+                                            placeholder="YYYY-MM-DD"
+                                            disabled={!!formData.distributionDate}
+                                        />
+                                        {!!formData.distributionDate && (
+                                            <p className="text-xs text-muted-foreground mt-1">Scan a different QR code to change</p>
+                                        )}
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="warrantyPeriod">Warranty Period</Label>
+                                        <Input
+                                            id="warrantyPeriod"
+                                            name="warrantyPeriod"
+                                            value={formData.warrantyPeriod}
+                                            onChange={handleChange}
+                                            placeholder="Warranty Period"
+                                            disabled={!!formData.warrantyPeriod}
+                                        />
+                                        {!!formData.warrantyPeriod && (
+                                            <p className="text-xs text-muted-foreground mt-1">Scan a different QR code to change</p>
+                                        )}
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="agentName">Agent Name</Label>
+                                        <Input
+                                            id="agentName"
+                                            name="agentName"
+                                            value={formData.agentName}
+                                            onChange={handleChange}
+                                            placeholder="Agent Name"
+                                            disabled={!!formData.agentName}
+                                        />
+                                        {!!formData.agentName && (
+                                            <p className="text-xs text-muted-foreground mt-1">Scan a different QR code to change</p>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
                         </CardContent>
 
                         <CardFooter className="flex justify-end space-x-2">
@@ -315,4 +311,3 @@ export default function CreateTicketPage() {
         </div>
     )
 }
-
