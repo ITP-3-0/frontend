@@ -72,7 +72,7 @@ export default function NotificationsView() {
     setIsLoading(true)
     try {
       // Pass the current user's information to the API
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/notifications/user/notifications`, {
+      const response = await axios.get(`/api/notifications/user/notifications`, {
         params: {
           username: user.displayName || user.email,
           role: user.role || "client" // Default to client if role is not available
@@ -102,7 +102,7 @@ export default function NotificationsView() {
       setNotifications(updatedNotifications)
       
       // API call to mark notification as read
-      await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/notifications/read/${notificationId}`, {
+      await axios.put(`/api/notifications/read/${notificationId}`, {
         username: user.displayName || user.email
       })
       
