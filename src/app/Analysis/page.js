@@ -1,7 +1,7 @@
 "use client"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { AlertTriangle, MessageSquare, ThumbsDown, ThumbsUp } from "lucide-react"
 
 export default function DashboardPage() {
@@ -19,7 +19,6 @@ export default function DashboardPage() {
       <p className="text-gray-500 mb-8">Monitor and analyze system feedback in real-time.</p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        {/* Total Feedback Card */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Total Feedback</CardTitle>
@@ -31,7 +30,6 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Positive Feedback Card */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Positive Feedback</CardTitle>
@@ -43,7 +41,6 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Negative Feedback Card */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Negative Feedback</CardTitle>
@@ -55,7 +52,17 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Critical Issues Card */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Neutral Feedback</CardTitle>
+            <MessageSquare className="h-4 w-4 text-gray-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">306</div>
+            <p className="text-sm text-gray-500">+2.1% from last month</p>
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Critical Issues</CardTitle>
@@ -68,7 +75,6 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      {/* Feedback Trends Section */}
       <Card className="mb-6">
         <CardHeader>
           <CardTitle>Feedback Trends</CardTitle>
@@ -81,9 +87,21 @@ export default function DashboardPage() {
               <TabsTrigger value="weekly">Weekly</TabsTrigger>
               <TabsTrigger value="monthly">Monthly</TabsTrigger>
             </TabsList>
-            <div className="h-64 w-full bg-gray-50 rounded-md flex items-center justify-center text-gray-400">
-              Chart would render here
-            </div>
+            <TabsContent value="daily">
+              <div className="h-64 w-full bg-gray-50 rounded-md flex items-center justify-center text-gray-400">
+                Daily Chart
+              </div>
+            </TabsContent>
+            <TabsContent value="weekly">
+              <div className="h-64 w-full bg-gray-50 rounded-md flex items-center justify-center text-gray-400">
+                Weekly Chart
+              </div>
+            </TabsContent>
+            <TabsContent value="monthly">
+              <div className="h-64 w-full bg-gray-50 rounded-md flex items-center justify-center text-gray-400">
+                Monthly Chart
+              </div>
+            </TabsContent>
           </Tabs>
         </CardContent>
       </Card>

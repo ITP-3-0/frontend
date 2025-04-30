@@ -1,6 +1,10 @@
 "use client"
 import React, { useEffect, useState } from "react";
-import { Button, Input, Textarea, Select, Table, TableRow, TableCell, TableHead, TableBody } from "../../../components/ui";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table";
 import axios from "axios";
 
 const FeedbackPage = () => {
@@ -42,15 +46,24 @@ const FeedbackPage = () => {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      console.error("Invalid email address");
+      alert("Please enter a valid email address.");
+      return;
+    }
+
     try {
       if (isEditing) {
         await axios.put(`/api/feedback/${editingId}`, formData);
-        setIsEditing(false);
-        setEditingId(null);
       } else {
         await axios.post("/api/feedback", formData);
       }
       setFormData({ title: "", description: "", category: "", priority: "", email: "" });
+      setIsEditing(false);
+      setEditingId(null);
       fetchFeedbacks();
     } catch (error) {
       console.error("Error submitting feedback:", error);
@@ -79,7 +92,7 @@ const FeedbackPage = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 bg-blue-100"> {}
       <h1 className="text-2xl font-bold mb-4">Feedback Management</h1>
       <form onSubmit={handleSubmit} className="mb-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -99,8 +112,8 @@ const FeedbackPage = () => {
           />
           <Select
             name="category"
-            value={formData.category}
-            onChange={(e) => setFormData({ ...formData, category: e.target.value })} // Simplified handler
+            value={formData.category || ""}
+            onChange={(e) => handleInputChange({ target: { name: "category", value: e.target.value } })} // Fix onChange
             required
           >
             <option value="">Select Category</option>
@@ -110,8 +123,8 @@ const FeedbackPage = () => {
           </Select>
           <Select
             name="priority"
-            value={formData.priority}
-            onChange={(e) => setFormData({ ...formData, priority: e.target.value })} // Simplified handler
+            value={formData.priority || ""}
+            onChange={(e) => handleInputChange({ target: { name: "priority", value: e.target.value } })} // Fix onChange
             required
           >
             <option value="">Select Priority</option>
@@ -133,9 +146,9 @@ const FeedbackPage = () => {
           {isEditing ? "Update Feedback" : "Add Feedback"}
         </Button>
       </form>
-
+      
       <Table>
-        <TableHead>
+        <TableHeader>
           <TableRow>
             <TableCell>Title</TableCell>
             <TableCell>Email</TableCell>
@@ -143,10 +156,10 @@ const FeedbackPage = () => {
             <TableCell>Priority</TableCell>
             <TableCell>Actions</TableCell>
           </TableRow>
-        </TableHead>
+        </TableHeader>
         <TableBody>
           {feedbacks.map((feedback) => (
-            <TableRow key={feedback._id || feedback.id || Math.random()}> {/* Fallback for missing _id */}
+            <TableRow key={feedback._id || feedback.id}> {/* Remove Math.random fallback */}
               <TableCell>{feedback.title}</TableCell>
               <TableCell>{feedback.email}</TableCell>
               <TableCell>{feedback.category}</TableCell>
@@ -155,7 +168,7 @@ const FeedbackPage = () => {
                 <Button onClick={() => handleEdit(feedback)} className="mr-2">
                   Edit
                 </Button>
-                <Button onClick={() => handleDelete(feedback._id)} variant="destructive"> {/* Use _id */}
+                <Button onClick={() => handleDelete(feedback._id || feedback.id)} className="bg-red-500 text-white"> {/* Ensure consistent ID */}
                   Delete
                 </Button>
               </TableCell>
