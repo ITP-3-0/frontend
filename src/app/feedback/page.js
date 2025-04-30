@@ -1,5 +1,6 @@
+"use client"
 import React, { useEffect, useState } from "react";
-import { Button, Input, Textarea, Select, Table, TableRow, TableCell, TableHead, TableBody } from "shadcn-ui";
+import { Button, Input, Textarea, Select, Table, TableRow, TableCell, TableHead, TableBody } from "../../../components/ui";
 import axios from "axios";
 
 const FeedbackPage = () => {
@@ -60,12 +61,16 @@ const FeedbackPage = () => {
   const handleEdit = (feedback) => {
     setFormData(feedback);
     setIsEditing(true);
-    setEditingId(feedback._id); // Use _id instead of id
+    setEditingId(feedback._id); // Ensure _id is used consistently
   };
 
   // Handle delete
   const handleDelete = async (id) => {
     try {
+      if (!id) {
+        console.error("Invalid feedback ID for deletion");
+        return;
+      }
       await axios.delete(`/api/feedback/${id}`);
       fetchFeedbacks();
     } catch (error) {
@@ -95,7 +100,7 @@ const FeedbackPage = () => {
           <Select
             name="category"
             value={formData.category}
-            onChange={handleInputChange}
+            onChange={(e) => setFormData({ ...formData, category: e.target.value })} // Simplified handler
             required
           >
             <option value="">Select Category</option>
@@ -106,7 +111,7 @@ const FeedbackPage = () => {
           <Select
             name="priority"
             value={formData.priority}
-            onChange={handleInputChange}
+            onChange={(e) => setFormData({ ...formData, priority: e.target.value })} // Simplified handler
             required
           >
             <option value="">Select Priority</option>
@@ -141,7 +146,7 @@ const FeedbackPage = () => {
         </TableHead>
         <TableBody>
           {feedbacks.map((feedback) => (
-            <TableRow key={feedback.id}>
+            <TableRow key={feedback._id || feedback.id || Math.random()}> {/* Fallback for missing _id */}
               <TableCell>{feedback.title}</TableCell>
               <TableCell>{feedback.email}</TableCell>
               <TableCell>{feedback.category}</TableCell>
@@ -150,7 +155,7 @@ const FeedbackPage = () => {
                 <Button onClick={() => handleEdit(feedback)} className="mr-2">
                   Edit
                 </Button>
-                <Button onClick={() => handleDelete(feedback.id)} variant="destructive">
+                <Button onClick={() => handleDelete(feedback._id)} variant="destructive"> {/* Use _id */}
                   Delete
                 </Button>
               </TableCell>
