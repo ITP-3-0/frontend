@@ -18,9 +18,10 @@ import {
 import { FileUploader } from "./FileUploader";
 import { AddUserDialog } from "./AddUserDialog";
 import { EditUserDialog } from "./EditUserDialog";
-import { registerAdmin } from "@/Firebase/FirebaseFunctions";
 import { useButton } from "@/app/Contexts/ButtonContext";
 import { toast } from "sonner";
+import { jsPDF } from "jspdf";
+import { autoTable } from "jspdf-autotable";
 
 export function UserManagement({ props }) {
     const [users, setUsers] = useState([]);
@@ -205,6 +206,21 @@ export function UserManagement({ props }) {
             });
     };
 
+    const downloadUsers = () => {
+        const doc = new jsPDF();
+
+        autoTable(doc, {
+            head: [["User Name", "Census Number", "Email", "Role"]],
+            body: filteredUsers.map((user) => [
+                user.username,
+                user.censusNo,
+                user.email,
+                user.role === "admin" ? "Admin" : user.role === "client" ? "User" : user.role === "agent_l1" ? "Agent L1" : "Agent L2",
+            ]),
+        });
+        doc.save(`users${new Date().toISOString().slice(0, 10).replace(/-/g, "-")}.pdf`);
+    };
+
     const userStats = {
         total: users.length,
         admins: users.filter((user) => user.role === "admin").length,
@@ -297,7 +313,7 @@ export function UserManagement({ props }) {
                         <Upload className="mr-2 h-4 w-4" />
                         Import
                     </Button>
-                    <Button variant="outline" size="sm" className="h-9">
+                    <Button variant="outline" size="sm" className="h-9" onClick={downloadUsers}>
                         <Download className="mr-2 h-4 w-4" />
                         Export
                     </Button>
