@@ -137,7 +137,7 @@ export default function CreateTicketPage() {
             <Button
                 variant="ghost"
                 className="mb-6 -ml-2 text-muted-foreground hover:text-foreground transition-colors"
-                onClick={() => router.push("/api/tickets/ticketList")}
+                onClick={() => router.push("/tickets/ticketList")}
             >
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to tickets
@@ -436,7 +436,7 @@ export default function CreateTicketPage() {
                                             Back
                                         </Button>
                                         <div className="flex gap-2">
-                                            <Button type="button" variant="outline" onClick={() => router.push("api/tickets/ticketList")}>
+                                            <Button type="button" variant="outline" onClick={() => router.push("/tickets/ticketList")}>
                                                 Cancel
                                             </Button>
                                             <Button
