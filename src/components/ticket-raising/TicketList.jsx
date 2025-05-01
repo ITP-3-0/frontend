@@ -108,8 +108,8 @@ export default function TicketList({ tickets }) {
     }
 
     const handleSortChange = (value) => {
-        setSortOption(value)
-    }
+        setSortOption(value); // Update the selected sort option
+    };
 
     const handleView = (ticket) => {
         setSelectedTicket(ticket)
@@ -180,7 +180,6 @@ export default function TicketList({ tickets }) {
             const matchesSearchQuery =
                 ticket.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 ticket.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                (ticket.agentName && ticket.agentName.toLowerCase().includes(searchQuery.toLowerCase())) ||
                 (ticket.deviceName && ticket.deviceName.toLowerCase().includes(searchQuery.toLowerCase()))
 
             // Filter by warranty status if tab is not "all"
@@ -309,17 +308,37 @@ export default function TicketList({ tickets }) {
                                 <DropdownMenuContent align="end" className="w-[200px]">
                                     <DropdownMenuLabel>Sort by</DropdownMenuLabel>
                                     <DropdownMenuSeparator />
-                                    <DropdownMenuItem onClick={() => handleSortChange("newest")} className={sortOption === "newest" ? "bg-muted" : ""}>
+                                    <DropdownMenuItem
+                                        onClick={() => handleSortChange("newest")}
+                                        className={`flex items-center justify-between ${sortOption === "newest" ? "bg-muted font-bold" : ""
+                                            }`}
+                                    >
                                         Newest First
+                                        {sortOption === "newest" && <CheckCircleIcon className="h-4 w-4 text-green-500" />}
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => handleSortChange("oldest")} className={sortOption === "oldest" ? "bg-muted" : ""}>
+                                    <DropdownMenuItem
+                                        onClick={() => handleSortChange("oldest")}
+                                        className={`flex items-center justify-between ${sortOption === "oldest" ? "bg-muted font-bold" : ""
+                                            }`}
+                                    >
                                         Oldest First
+                                        {sortOption === "oldest" && <CheckCircleIcon className="h-4 w-4 text-green-500" />}
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => handleSortChange("title")} className={sortOption === "title" ? "bg-muted" : ""}>
+                                    <DropdownMenuItem
+                                        onClick={() => handleSortChange("title")}
+                                        className={`flex items-center justify-between ${sortOption === "title" ? "bg-muted font-bold" : ""
+                                            }`}
+                                    >
                                         Title (A-Z)
+                                        {sortOption === "title" && <CheckCircleIcon className="h-4 w-4 text-green-500" />}
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => handleSortChange("warranty")} className={sortOption === "warranty" ? "bg-muted" : ""}>
+                                    <DropdownMenuItem
+                                        onClick={() => handleSortChange("warranty")}
+                                        className={`flex items-center justify-between ${sortOption === "warranty" ? "bg-muted font-bold" : ""
+                                            }`}
+                                    >
                                         Warranty Status
+                                        {sortOption === "warranty" && <CheckCircleIcon className="h-4 w-4 text-green-500" />}
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
@@ -467,18 +486,6 @@ export default function TicketList({ tickets }) {
 
                                 <div className="flex items-start gap-2">
                                     <div className="bg-muted p-2 rounded-full">
-                                        <UserIcon className="h-4 w-4 text-muted-foreground" />
-                                    </div>
-                                    <div>
-                                        <p className="text-sm font-medium">Agent</p>
-                                        <p className="text-sm text-muted-foreground">{selectedTicket.agentName || "N/A"}</p>
-                                    </div>
-                                </div>
-
-                                <Separator />
-
-                                <div className="flex items-start gap-2">
-                                    <div className="bg-muted p-2 rounded-full">
                                         <TagIcon className="h-4 w-4 text-muted-foreground" />
                                     </div>
                                     <div>
@@ -501,6 +508,18 @@ export default function TicketList({ tickets }) {
                                                 }
                                             })()}
                                         </div>
+                                    </div>
+                                </div>
+
+                                <Separator />
+
+                                <div className="flex items-start gap-2">
+                                    <div className="bg-muted p-2 rounded-full">
+                                        <TagIcon className="h-4 w-4 text-muted-foreground" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-medium">Ticket Status</p>
+                                        <p className="text-sm text-muted-foreground">{selectedTicket.status}</p>
                                     </div>
                                 </div>
 
@@ -548,7 +567,7 @@ export default function TicketList({ tickets }) {
                     </TooltipPrimitive.Content>
                 </TooltipPrimitive.Root>
             </TooltipPrimitive.Provider>
-        </div>
+        </div >
     )
 }
 
@@ -569,12 +588,13 @@ function TicketTable({
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead>Title</TableHead>
+                                <TableHead>Reference ID</TableHead>
+                                <TableHead className="hidden md:table-cell">Title</TableHead>
                                 <TableHead className="hidden md:table-cell">Description</TableHead>
                                 <TableHead className="hidden lg:table-cell">Device</TableHead>
                                 <TableHead className="hidden lg:table-cell">Distribution Date</TableHead>
                                 <TableHead className="hidden lg:table-cell">Warranty</TableHead>
-                                <TableHead className="hidden md:table-cell">Agent</TableHead>
+                                <TableHead className="text-right">Ticket Status</TableHead>
                                 <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -603,8 +623,11 @@ function TicketTable({
                                             <TableCell className="font-medium">
                                                 <div className="flex items-center gap-2">
                                                     <div className={`w-2 h-2 rounded-full ${warrantyStatus.isActive ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                                                    {ticket.title}
+                                                    {ticket._id.slice(0, 7)} {/* Show only the first 7 characters */}
                                                 </div>
+                                            </TableCell>
+                                            <TableCell className="hidden md:table-cell max-w-[200px] truncate">
+                                                {ticket.title}
                                             </TableCell>
                                             <TableCell className="hidden md:table-cell max-w-[200px] truncate">
                                                 {ticket.description}
@@ -632,7 +655,9 @@ function TicketTable({
                                                     }
                                                 })()}
                                             </TableCell>
-                                            <TableCell className="hidden md:table-cell">{ticket.agentName || "N/A"}</TableCell>
+                                            <TableCell className="hidden md:table-cell max-w-[200px] truncate">
+                                                {ticket.status}
+                                            </TableCell>
                                             <TableCell className="text-right">
                                                 <div className="flex items-center justify-end gap-1">
                                                     <TooltipProvider>
