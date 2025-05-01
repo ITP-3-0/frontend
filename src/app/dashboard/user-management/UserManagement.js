@@ -20,6 +20,7 @@ import { AddUserDialog } from "./AddUserDialog";
 import { EditUserDialog } from "./EditUserDialog";
 import { registerAdmin } from "@/Firebase/FirebaseFunctions";
 import { useButton } from "@/app/Contexts/ButtonContext";
+import { toast } from "sonner";
 
 export function UserManagement({ props }) {
     const [users, setUsers] = useState([]);
@@ -32,6 +33,7 @@ export function UserManagement({ props }) {
     const [showFileUploader, setShowFileUploader] = useState(false);
     const [roleFilter, setRoleFilter] = useState("all");
     const { button, setButton } = useButton();
+    const [status, setStatus] = useState("");
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -77,8 +79,38 @@ export function UserManagement({ props }) {
     }, [searchQuery, roleFilter, users]);
 
     const handleAddUser = async (newUser) => {
+        // need to send the data to the backend to process account creation
         try {
-            registerAdmin(newUser.email, newUser.password, newUser.username, newUser.role, newUser.censusNo);
+            const userData = {
+                username: newUser.username,
+                email: newUser.email,
+                censusNo: newUser.censusNo ? newUser.censusNo : "", // Ensure censusNo is included
+                role: newUser.role,
+                password: newUser.password,
+            };
+            await fetch("/api/users/admin", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(userData),
+            })
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error("Failed to create user");
+                    }
+                    window.location.reload();
+                    return response.json();
+                })
+                .then((data) => {
+                    console.log("User created successfully:", data);
+                    window.location.reload();
+                })
+                .catch((error) => {
+                    console.error("Error creating user:", error);
+                    window.alert("An error occurred. Error: " + error.message);
+                    window.location.reload();
+                });
         } catch (error) {
             window.alert("An error occurred. Error: " + error.message);
         } finally {
@@ -127,11 +159,50 @@ export function UserManagement({ props }) {
         }
     };
 
-    const handleFileUpload = (fileData) => {
-        console.log("File data received:", fileData);
-        setShowFileUploader(false);
-        // For testing
-        alert(`Successfully processed file with ${fileData.length} records`);
+    useEffect(() => {
+        // this should be changed to government url
+        const eventSource = new EventSource("http://localhost:5000/users/bulk-account-creation/stream");
+
+        eventSource.addEventListener("finished", (e) => {
+            toast.dismiss();
+            toast("Bulk upload completed successfully.");
+
+            eventSource.close();
+            setTimeout(() => window.location.reload(), 3000);
+        });
+
+        eventSource.addEventListener("error", (e) => {
+            toast.dismiss();
+            toast("An error occurred during bulk upload. Please try again.", {
+                variant: "destructive",
+            });
+            eventSource.close();
+            setTimeout(() => window.location.reload(), 3000);
+        });
+
+        return () => {
+            eventSource.close();
+        };
+    }, []);
+
+    const handleFileUpload = (file) => {
+        fetch("/api/users/bulk-account-creation", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ file }),
+        })
+            .then(() => {
+                toast("Bulk upload started. Please wait...", {
+                    duration: Infinity,
+                });
+            })
+            .catch((error) => {
+                console.error("Error uploading file:", error);
+                window.alert("An error occurred. Error: " + error.message);
+                window.location.reload();
+            });
     };
 
     const userStats = {

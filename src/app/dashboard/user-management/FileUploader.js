@@ -5,6 +5,7 @@ import { Upload, X, FileText, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { parse } from "papaparse";
 
 export function FileUploader({ onClose, onUpload }) {
     const [file, setFile] = useState(null);
@@ -50,21 +51,26 @@ export function FileUploader({ onClose, onUpload }) {
     };
 
     const handleUpload = () => {
-        if (!file) return;
-
-        // In a real app, you would parse the CSV/Excel file here
-        // For this example, we'll just simulate processing
-
-        // Mock data processing
-        setTimeout(() => {
-            // Simulate processed data
-            const mockProcessedData = [
-                { id: 1, username: "user1", email: "user1@example.com", role: "user" },
-                { id: 2, username: "user2", email: "user2@example.com", role: "staff" },
-            ];
-
-            onUpload(mockProcessedData);
-        }, 1000);
+        if (!file) {
+            setError("Please select a file to upload");
+            return;
+        }
+        setError("");
+        if (file.name.endsWith(".csv")) {
+            parse(file, {
+                header: true,
+                complete: (results) => {
+                    onUpload(results.data); // Pass the parsed data to the parent component
+                    onClose(); // Close the dialog after upload
+                },
+                error: (error) => {
+                    setError("Error parsing file: " + error.message);
+                },
+            });
+        } else {
+            setError("Unsupported file type for parsing. Please use CSV files.");
+            return;
+        }
     };
 
     return (
