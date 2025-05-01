@@ -43,8 +43,10 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { motion } from "framer-motion"
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
+import ReplyForm from '../replies/ReplyForm';
+import ReplyList from '../replies/ReplyList';
 
-export default function TicketList({ tickets }) {
+export default function TicketList({ tickets, isAgentView = false }) {
     const router = useRouter()
     const { toast } = useToast()
     const [ticketList, setTicketList] = useState(tickets)
@@ -58,6 +60,7 @@ export default function TicketList({ tickets }) {
     const [isViewModalOpen, setIsViewModalOpen] = useState(false)
     const [selectedTicket, setSelectedTicket] = useState(null)
     const [activeTab, setActiveTab] = useState("all")
+    const [showReplyForm, setShowReplyForm] = useState(false)
 
     const handleRowsPerPageChange = (value) => {
         setRowsPerPage(Number(value))
@@ -129,7 +132,14 @@ export default function TicketList({ tickets }) {
 
     const handleView = (ticket) => {
         setSelectedTicket(ticket)
-        setIsViewModalOpen(true)
+        setShowReplyForm(true)
+    }
+
+    const handleReplyAdded = (updatedTicket) => {
+        setTicketList(ticketList.map(t => 
+            t._id === updatedTicket._id ? updatedTicket : t
+        ))
+        setSelectedTicket(updatedTicket)
     }
 
     // Calculate warranty status
@@ -451,52 +461,40 @@ export default function TicketList({ tickets }) {
             </AlertDialog>
 
             {/* View Ticket Details Dialog */}
-            <AlertDialog open={isViewModalOpen} onOpenChange={setIsViewModalOpen}>
-                <AlertDialogContent className="max-w-md">
-                    <AlertDialogHeader>
-                        <AlertDialogTitle className="text-xl font-bold">
-                            {selectedTicket?.title}
-                        </AlertDialogTitle>
-                    </AlertDialogHeader>
+            {selectedTicket && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                        <div className="flex justify-between items-start mb-4">
+                            <div>
+                                <h2 className="text-2xl font-bold">{selectedTicket.title}</h2>
+                                <p className="text-gray-600">{selectedTicket.description}</p>
+                            </div>
+                            <Button variant="ghost" onClick={() => setSelectedTicket(null)}>
+                                Close
+                            </Button>
+                        </div>
 
-                    <ScrollArea className="max-h-[60vh]">
-                        {selectedTicket && (
-                            <div className="space-y-4 py-2">
-                                <div className="flex items-start gap-2">
-                                    <div className="bg-muted p-2 rounded-full">
-                                        <LaptopIcon className="h-4 w-4 text-muted-foreground" />
-                                    </div>
-                                    <div>
-                                        <p className="text-sm font-medium">Device</p>
-                                        <p className="text-sm text-muted-foreground">{selectedTicket.deviceName || "N/A"}</p>
-                                    </div>
+                        <div className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <p className="text-sm text-gray-500">Device</p>
+                                    <p>{selectedTicket.deviceName}</p>
+                                </div>
+                                <div>
+                                    <p className="text-sm text-gray-500">Priority</p>
+                                    <Badge variant={selectedTicket.priority === 'high' ? 'destructive' : 
+                                        selectedTicket.priority === 'medium' ? 'warning' : 'default'}>
+                                        {selectedTicket.priority}
+                                    </Badge>
+                                </div>
+                                <div>
+                                    <p className="text-sm text-gray-500">Status</p>
+                                    <Badge variant={selectedTicket.status === 'resolved' ? 'success' : 
+                                        selectedTicket.status === 'in_progress' ? 'warning' : 'default'}>
+                                        {selectedTicket.status}
+                                    </Badge>
                                 </div>
 
-                                <Separator />
-
-                                <div className="flex items-start gap-2">
-                                    <div className="bg-muted p-2 rounded-full">
-                                        <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-                                    </div>
-                                    <div>
-                                        <p className="text-sm font-medium">Distribution Date</p>
-                                        <p className="text-sm text-muted-foreground">
-                                            {new Date(selectedTicket.distributionDate).toLocaleDateString()}
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <Separator />
-
-                                <div className="flex items-start gap-2">
-                                    <div className="bg-muted p-2 rounded-full">
-                                        <ClockIcon className="h-4 w-4 text-muted-foreground" />
-                                    </div>
-                                    <div>
-                                        <p className="text-sm font-medium">Warranty Period</p>
-                                        <p className="text-sm text-muted-foreground">{selectedTicket.warrantyPeriod} months</p>
-                                    </div>
-                                </div>
 
                                 <Separator />
 
@@ -527,7 +525,11 @@ export default function TicketList({ tickets }) {
                                     </div>
                                 </div>
 
-                                <Separator />
+
+
+                            <h3 className="text-lg font-semibold">Replies</h3>
+                            <ReplyList replies={selectedTicket.replies} />
+
 
                                 <div className="flex items-start gap-2">
                                     <div className="bg-muted p-2 rounded-full">
@@ -570,6 +572,7 @@ export default function TicketList({ tickets }) {
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
+
 
             <TooltipPrimitive.Provider>
                 <TooltipPrimitive.Root>
