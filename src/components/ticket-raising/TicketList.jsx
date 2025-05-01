@@ -64,8 +64,16 @@ export default function TicketList({ tickets }) {
         setCurrentPage(1)
     }
 
-    const handleEdit = (id) => {
-        router.push(`/tickets/${id}/edit`)
+    const handleEdit = (id, status) => {
+        if (status === "in_progress" || status === "resolved") {
+            toast({
+                title: "Cannot edit ticket",
+                description: `Tickets with '${status}' status cannot be edited.`,
+                variant: "destructive",
+            });
+            return;
+        }
+        router.push(`/tickets/${id}/edit`);
     }
 
     const handleDelete = async () => {
@@ -102,9 +110,17 @@ export default function TicketList({ tickets }) {
         }
     }
 
-    const openDeleteDialog = (id) => {
-        setTicketToDelete(id)
-        setIsDeleteDialogOpen(true)
+    const openDeleteDialog = (id, status) => {
+        if (status === "in_progress" || status === "resolved") {
+            toast({
+                title: "Cannot delete ticket",
+                description: `Tickets with '${status}' status cannot be deleted.`,
+                variant: "destructive",
+            });
+            return;
+        }
+        setTicketToDelete(id);
+        setIsDeleteDialogOpen(true);
     }
 
     const handleSortChange = (value) => {
@@ -685,7 +701,7 @@ function TicketTable({
                                                                 <Button
                                                                     variant="ghost"
                                                                     size="icon"
-                                                                    onClick={() => handleEdit(ticket._id)}
+                                                                    onClick={() => handleEdit(ticket._id, ticket.status)}
                                                                     className="h-8 w-8 opacity-70 group-hover:opacity-100 transition-opacity"
                                                                 >
                                                                     <PencilIcon className="h-4 w-4" />
@@ -693,7 +709,9 @@ function TicketTable({
                                                                 </Button>
                                                             </TooltipTrigger>
                                                             <TooltipContent>
-                                                                <p>Edit ticket</p>
+                                                                {ticket.status === "in_progress" || ticket.status === "resolved"
+                                                                    ? `Cannot edit ${ticket.status} ticket`
+                                                                    : "Edit ticket"}
                                                             </TooltipContent>
                                                         </Tooltip>
                                                     </TooltipProvider>
@@ -705,7 +723,7 @@ function TicketTable({
                                                                     variant="ghost"
                                                                     size="icon"
                                                                     disabled={isLoading}
-                                                                    onClick={() => openDeleteDialog(ticket._id)}
+                                                                    onClick={() => openDeleteDialog(ticket._id, ticket.status)}
                                                                     className="h-8 w-8 text-destructive opacity-70 group-hover:opacity-100 transition-opacity"
                                                                 >
                                                                     <TrashIcon className="h-4 w-4" />
@@ -713,7 +731,9 @@ function TicketTable({
                                                                 </Button>
                                                             </TooltipTrigger>
                                                             <TooltipContent>
-                                                                <p>Delete ticket</p>
+                                                                {ticket.status === "in_progress" || ticket.status === "resolved"
+                                                                    ? `Cannot delete ${ticket.status} ticket`
+                                                                    : "Delete ticket"}
                                                             </TooltipContent>
                                                         </Tooltip>
                                                     </TooltipProvider>
