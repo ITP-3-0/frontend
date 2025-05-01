@@ -6,23 +6,30 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
+import { register } from "@/Firebase/FirebaseFunctions";
+import NavBar from "../_Components/NavBar";
+import { Loader2 } from "lucide-react";
+
+// TODO : 
+// The loading button is not working as expected. It should stop spinning once an error occurs.
 
 export default function RegisterPage() {
     const [census, setCensus] = useState("");
+    const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
+    const [buttonLoading, setButtonLoading] = useState(false);
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (password === confirmPassword) {
-            alert("Passwords match");
-        } else {
-            alert("Passwords do not match");
-        }
+        setButtonLoading(true);
+        register(email, password, census).catch((error) => {
+            setButtonLoading(false);
+        });
     };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-100 via-blue-300 to-blue-500 flex items-center justify-center pt-14 px-4 md:px-0">
+            <NavBar />
             <div className="bg-white rounded-3xl overflow-hidden w-full max-w-4xl shadow-xl flex flex-col md:flex-row">
                 {/* Right side - Login Form */}
                 <div className="w-full md:w-1/2 p-8 md:p-12 bg-purple-50/50">
@@ -36,7 +43,7 @@ export default function RegisterPage() {
                                 <Label htmlFor="census">Census no</Label>
                                 <Input
                                     id="census"
-                                    placeholder="123456"
+                                    placeholder="Enter your census number"
                                     type="text"
                                     className="bg-white"
                                     value={census}
@@ -45,8 +52,21 @@ export default function RegisterPage() {
                                 />
                             </div>
                             <div className="space-y-2">
+                                <Label htmlFor="email">Email</Label>
+                                <Input
+                                    placeholder="Enter your email"
+                                    id="email"
+                                    type="email"
+                                    className="bg-white"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
+                                />
+                            </div>
+                            <div className="space-y-2">
                                 <Label htmlFor="password">Password</Label>
                                 <Input
+                                    placeholder="Enter a strong password"
                                     id="password"
                                     type="password"
                                     className="bg-white"
@@ -55,19 +75,9 @@ export default function RegisterPage() {
                                     required
                                 />
                             </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="password-confirm">Confirm Password</Label>
-                                <Input
-                                    id="password-confirm"
-                                    type="password"
-                                    className="bg-white"
-                                    value={confirmPassword}
-                                    onChange={(e) => setConfirmPassword(e.target.value)}
-                                    required
-                                />
-                            </div>
 
                             <Button type="submit" className="w-full bg-blue-500 hover:bg-blue-700 text-white">
+                                {buttonLoading ? <Loader2 className="animate-spin" /> : ""}
                                 Register
                             </Button>
 
