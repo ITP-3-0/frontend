@@ -240,6 +240,7 @@ export default function TicketList({ tickets, isAgentView = false }) {
                             <h1 className="text-3xl font-bold tracking-tight">Ticket Management</h1>
                             <p className="mt-1 opacity-90">View and manage support tickets</p>
                         </div>
+                       
                         <TooltipProvider>
                             <Tooltip>
                                 <TooltipTrigger asChild>
@@ -462,87 +463,86 @@ export default function TicketList({ tickets, isAgentView = false }) {
 
             {/* View Ticket Details Dialog */}
             {selectedTicket && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-                        <div className="flex justify-between items-start mb-4">
-                            <div>
-                                <h2 className="text-2xl font-bold">{selectedTicket.title}</h2>
-                                <p className="text-gray-600">{selectedTicket.description}</p>
-                            </div>
-                            <Button variant="ghost" onClick={() => setSelectedTicket(null)}>
-                                Close
-                            </Button>
-                        </div>
-
-                        <div className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <p className="text-sm text-gray-500">Device</p>
-                                    <p>{selectedTicket.deviceName}</p>
-                                </div>
-                                <div>
-                                    <p className="text-sm text-gray-500">Priority</p>
-                                    <Badge variant={selectedTicket.priority === 'high' ? 'destructive' : 
-                                        selectedTicket.priority === 'medium' ? 'warning' : 'default'}>
-                                        {selectedTicket.priority}
-                                    </Badge>
-                                </div>
-                                <div>
-                                    <p className="text-sm text-gray-500">Status</p>
-                                    <Badge variant={selectedTicket.status === 'resolved' ? 'success' : 
-                                        selectedTicket.status === 'in_progress' ? 'warning' : 'default'}>
-                                        {selectedTicket.status}
-                                    </Badge>
-                                </div>
-
-
-                                <Separator />
-
-                                <div className="flex items-start gap-2">
-                                    <div className="bg-muted p-2 rounded-full">
-                                        <TagIcon className="h-4 w-4 text-muted-foreground" />
+                <AlertDialog open={isViewModalOpen || showReplyForm} onOpenChange={(open) => {
+                    setIsViewModalOpen(open);
+                    if (!open) setSelectedTicket(null);
+                    if (!open) setShowReplyForm(false);
+                }}>
+                    <AlertDialogContent className="max-w-3xl max-h-[80vh] overflow-hidden flex flex-col">
+                        <AlertDialogHeader>
+                            <AlertDialogTitle className="text-xl">{selectedTicket.title}</AlertDialogTitle>
+                            <AlertDialogDescription className="text-sm">{selectedTicket.description}</AlertDialogDescription>
+                        </AlertDialogHeader>
+                        
+                        <ScrollArea className="flex-1 pr-4">
+                            <div className="space-y-4 py-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div className="flex items-start gap-2">
+                                        <div className="bg-muted p-2 rounded-full">
+                                            <LaptopIcon className="h-4 w-4 text-muted-foreground" />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-medium">Device</p>
+                                            <p className="text-sm text-muted-foreground">{selectedTicket.deviceName || "N/A"}</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <p className="text-sm font-medium">Warranty Status</p>
-                                        <div className="mt-1">
-                                            {(() => {
-                                                const status = getWarrantyStatus(selectedTicket)
-                                                if (status.isActive) {
-                                                    return (
-                                                        <Badge variant="outline" className="bg-green-50 text-green-800 border-green-200">
-                                                            Active - {status.diffDays} days remaining
-                                                        </Badge>
-                                                    )
-                                                } else {
-                                                    return (
-                                                        <Badge variant="outline" className="bg-red-50 text-red-800 border-red-200">
-                                                            Expired - {status.diffDays} days ago
-                                                        </Badge>
-                                                    )
-                                                }
-                                            })()}
+                                    
+                                    <div className="flex items-start gap-2">
+                                        <div className="bg-muted p-2 rounded-full">
+                                            <TagIcon className="h-4 w-4 text-muted-foreground" />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-medium">Priority</p>
+                                            <Badge variant={selectedTicket.priority === 'high' ? 'destructive' :
+                                                selectedTicket.priority === 'medium' ? 'warning' : 'default'}>
+                                                {selectedTicket.priority}
+                                            </Badge>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="flex items-start gap-2">
+                                        <div className="bg-muted p-2 rounded-full">
+                                            <TagIcon className="h-4 w-4 text-muted-foreground" />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-medium">Status</p>
+                                            <Badge variant={selectedTicket.status === 'resolved' ? 'success' :
+                                                selectedTicket.status === 'in_progress' ? 'warning' : 'default'}>
+                                                {selectedTicket.status}
+                                            </Badge>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="flex items-start gap-2">
+                                        <div className="bg-muted p-2 rounded-full">
+                                            <TagIcon className="h-4 w-4 text-muted-foreground" />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-medium">Warranty Status</p>
+                                            <div className="mt-1">
+                                                {(() => {
+                                                    const status = getWarrantyStatus(selectedTicket)
+                                                    if (status.isActive) {
+                                                        return (
+                                                            <Badge variant="outline" className="bg-green-50 text-green-800 border-green-200">
+                                                                Active - {status.diffDays} days remaining
+                                                            </Badge>
+                                                        )
+                                                    } else {
+                                                        return (
+                                                            <Badge variant="outline" className="bg-red-50 text-red-800 border-red-200">
+                                                                Expired - {status.diffDays} days ago
+                                                            </Badge>
+                                                        )
+                                                    }
+                                                })()}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-
-
-
-                            <h3 className="text-lg font-semibold">Replies</h3>
-                            <ReplyList replies={selectedTicket.replies} />
-
-
-                                <div className="flex items-start gap-2">
-                                    <div className="bg-muted p-2 rounded-full">
-                                        <TagIcon className="h-4 w-4 text-muted-foreground" />
-                                    </div>
-                                    <div>
-                                        <p className="text-sm font-medium">Ticket Status</p>
-                                        <p className="text-sm text-muted-foreground">{selectedTicket.status}</p>
-                                    </div>
-                                </div>
-
+                                
                                 <Separator />
-
+                                
                                 <div>
                                     <p className="text-sm font-medium mb-2">Description</p>
                                     <Card className="bg-muted/50">
@@ -551,42 +551,39 @@ export default function TicketList({ tickets, isAgentView = false }) {
                                         </CardContent>
                                     </Card>
                                 </div>
+                                
+                                <Separator />
+                                
+                                {showReplyForm && (
+                                    <>
+                                        <h3 className="text-lg font-semibold">Replies</h3>
+                                        <ReplyList replies={selectedTicket.replies || []} />
+                                        <ReplyForm ticketId={selectedTicket._id} onReplyAdded={handleReplyAdded} />
+                                    </>
+                                )}
                             </div>
-                        )}
-                    </ScrollArea>
+                        </ScrollArea>
 
-                    <AlertDialogFooter className="gap-2 sm:gap-0">
-                        <AlertDialogCancel>Close</AlertDialogCancel>
-                        {selectedTicket && (
-                            <Button
-                                variant="outline"
-                                onClick={() => {
-                                    setIsViewModalOpen(false)
-                                    handleEdit(selectedTicket._id)
-                                }}
-                            >
-                                <PencilIcon className="h-4 w-4 mr-2" />
-                                Edit
-                            </Button>
-                        )}
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
-
-
-            <TooltipPrimitive.Provider>
-                <TooltipPrimitive.Root>
-                    <TooltipPrimitive.Content
-                        side="top"
-                        align="center"
-                        className="bg-black text-white text-sm px-2 py-1 rounded shadow-lg"
-                    >
-                        Tooltip content
-                        <TooltipPrimitive.Arrow className="fill-black" />
-                    </TooltipPrimitive.Content>
-                </TooltipPrimitive.Root>
-            </TooltipPrimitive.Provider>
-        </div >
+                        <AlertDialogFooter className="gap-2 sm:gap-0">
+                            <AlertDialogCancel>Close</AlertDialogCancel>
+                            {selectedTicket && (
+                                <Button
+                                    variant="outline"
+                                    onClick={() => {
+                                        setIsViewModalOpen(false);
+                                        setSelectedTicket(null);
+                                        handleEdit(selectedTicket._id);
+                                    }}
+                                >
+                                    <PencilIcon className="h-4 w-4 mr-2" />
+                                    Edit
+                                </Button>
+                            )}
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+            )}
+        </div>
     )
 }
 
