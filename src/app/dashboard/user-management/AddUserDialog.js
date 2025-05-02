@@ -6,6 +6,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useButton } from "@/app/Contexts/ButtonContext";
+import { Spinner } from "@/components/ui/spinner";
 
 export function AddUserDialog({ onClose, onSave }) {
     const [formData, setFormData] = useState({
@@ -17,6 +19,7 @@ export function AddUserDialog({ onClose, onSave }) {
     });
 
     const [errors, setErrors] = useState({});
+    const { button, setButton } = useButton(false);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -68,6 +71,7 @@ export function AddUserDialog({ onClose, onSave }) {
         e.preventDefault();
 
         if (validateForm()) {
+            setButton(true);
             onSave(formData);
         }
     };
@@ -150,7 +154,9 @@ export function AddUserDialog({ onClose, onSave }) {
                         <Button variant="outline" type="button" onClick={onClose}>
                             Cancel
                         </Button>
-                        <Button type="submit">Create User</Button>
+                        <Button type="submit" disabled={button} className="ml-2">
+                            {button ? <Spinner size="sm" /> : "Add User"}
+                        </Button>
                     </DialogFooter>
                 </form>
             </DialogContent>

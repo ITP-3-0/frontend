@@ -2,7 +2,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/Firebase/AuthContext";
 import { ButtonProvider } from "./Contexts/ButtonContext";
-import { ChatWidget } from "@/components/chat-widget"
+import { ChatWidget } from "@/components/chat-widget";
 import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
@@ -30,7 +30,7 @@ export default function RootLayout({ children }) {
                     </AuthProvider>
                     <ChatWidget />
                 </main>
-                <Toaster />
+                <Toaster className="bg-green-200" />
             </body>
         </html>
     );
