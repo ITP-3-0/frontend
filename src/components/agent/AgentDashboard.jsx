@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { SearchIcon, FilterIcon, FileTextIcon, Download } from 'lucide-react';
+import { SearchIcon, FilterIcon, FileTextIcon } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -17,7 +17,6 @@ import { Separator } from "@/components/ui/separator";
 import { Toaster } from "@/components/ui/toaster";
 import ReplyForm from '../replies/ReplyForm';
 import ReplyList from '../replies/ReplyList';
-import { generateTicketReport } from '@/utils/pdfGenerator';
 
 export default function AgentDashboard() {
     const [tickets, setTickets] = useState([]);
@@ -48,6 +47,43 @@ export default function AgentDashboard() {
         }
     };
 
+    const deleteTicket = async (ticketId) => {
+        try {
+            const ticket = tickets.find(t => t._id === ticketId);
+            if (!ticket) return;
+
+            if (ticket.status === 'resolved') {
+                // For resolved tickets, just hide from dashboard view
+                setTickets(tickets.filter(ticket => ticket._id !== ticketId));
+                toast({
+                    title: "Success",
+                    description: "Ticket hidden from dashboard",
+                    variant: "default",
+                });
+            } else {
+                // For other tickets, proceed with deletion from database
+                const response = await fetch(`/api/tickets/${ticketId}`, {
+                    method: 'DELETE',
+                });
+                if (!response.ok) {
+                    throw new Error('Failed to delete ticket');
+                }
+                setTickets(tickets.filter(ticket => ticket._id !== ticketId));
+                toast({
+                    title: "Success",
+                    description: "Ticket deleted successfully",
+                    variant: "default",
+                });
+            }
+        } catch (error) {
+            toast({
+                title: "Error",
+                description: error.message,
+                variant: "destructive",
+            });
+        }
+    };
+
     const getTicketCount = (status) => {
         return tickets.filter(ticket => ticket.status === status).length;
     };
@@ -61,29 +97,36 @@ export default function AgentDashboard() {
 
     const generateReport = async () => {
         try {
-            if (!tickets || tickets.length === 0) {
-                toast({
-                    title: "Error",
-                    description: "No tickets available to generate report",
-                    variant: "destructive",
-                });
-                return;
-            }
+            const reportData = tickets.map(ticket => ({
+                id: ticket._id,
+                title: ticket.title,
+                status: ticket.status,
+                priority: ticket.priority,
+                creator: ticket.creator,
+                created_at: new Date(ticket.created_at).toLocaleDateString(),
+                replies: ticket.replies ? ticket.replies.length : 0,
+                deviceName: ticket.deviceName
+            }));
 
-            const doc = generateTicketReport(tickets);
-            const fileName = `helpdesk-report-${new Date().toISOString().slice(0,10)}.pdf`;
-            doc.save(fileName);
-            
+            const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `ticket-report-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
             toast({
                 title: "Success",
-                description: "Report downloaded successfully",
+                description: "Report generated successfully",
                 variant: "default",
             });
         } catch (error) {
-            console.error('Report generation error:', error);
             toast({
                 title: "Error",
-                description: "Failed to generate report. Please try again.",
+                description: "Failed to generate report",
                 variant: "destructive",
             });
         }
@@ -229,12 +272,22 @@ export default function AgentDashboard() {
                                             }>
                                                 {ticket.status}
                                             </Badge>
-                                            <Button
-                                                variant="outline"
-                                                onClick={() => setSelectedTicket(ticket)}
-                                            >
-                                                View Details
-                                            </Button>
+                                            <div className="space-x-2">
+                                                {ticket.status === 'resolved' && (
+                                                    <Button
+                                                        variant="destructive"
+                                                        onClick={() => deleteTicket(ticket._id)}
+                                                    >
+                                                        Delete
+                                                    </Button>
+                                                )}
+                                                <Button
+                                                    variant="outline"
+                                                    onClick={() => setSelectedTicket(ticket)}
+                                                >
+                                                    View Details
+                                                </Button>
+                                            </div>
                                         </div>
                                     </CardContent>
                                 </Card>
