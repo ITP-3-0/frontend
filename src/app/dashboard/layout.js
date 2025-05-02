@@ -21,7 +21,7 @@ export default function DashboardLayout({ children }) {
                     const response = await fetch("/api/users/" + user.uid);
                     const users = await response.json();
                     // CRITICAL : BELOW COMPARISON HAS TO BE CHANGED. ONLY FOR DEVELOPMENT PURPOSES
-                    if (users.role === "client") {
+                    if (users.role === "client" || users.role === "agent_l1" || users.role === "agent_l2") {
                         router.push("/restricted");
                     } else {
                         setCanRender(true);
