@@ -4,13 +4,16 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { LuTicketCheck, LuMenu, LuX, LuLogIn } from "react-icons/lu";
+import { LuTicketCheck, LuMenu, LuX, LuLogIn, LuLogOut } from "react-icons/lu";
 import { FaHeadset } from "react-icons/fa";
+import { useAuth } from "@/Firebase/AuthContext";
+import { logout } from "@/Firebase/FirebaseFunctions";
 
 export default function NavBar() {
     const [scrolled, setScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [mounted, setMounted] = useState(false);
+    const { user, loading } = useAuth();
 
     useEffect(() => {
         setMounted(true);
@@ -67,24 +70,42 @@ export default function NavBar() {
                         ))}
                     </nav>
 
-                    {/* Action Button */}
-                    <div className="hidden md:block">
-                        <Link href="/login">
-                            <Button className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 rounded-full text-white shadow-md shadow-indigo-500/30 hover:shadow-lg hover:shadow-indigo-500/40 transition-all">
-                                <LuLogIn className="mr-2" />
-                                Login
+                    {/*Show logout button for logged in users*/}
+                    {user && (
+                        <>
+                            <span className="hidden md:flex items-center text-gray-700 font-medium">Welcome, {user.displayName || user.email}</span>
+                            <Button
+                                className="hidden rounded-full md:flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-500/30 hover:shadow-lg hover:shadow-indigo-500/40 transition-all"
+                                onClick={() => {
+                                    logout();
+                                }}
+                            >
+                                <LuLogOut className="text-xl" />
+                                Logout
                             </Button>
-                        </Link>
-                    </div>
-
-                    {/* Mobile Menu Button */}
-                    <button
-                        className="md:hidden p-2 rounded-full bg-white/80 backdrop-blur-sm shadow-md border border-gray-200"
-                        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                    >
-                        {mobileMenuOpen ? <LuX className="text-xl" /> : <LuMenu className="text-xl" />}
-                    </button>
+                        </>
+                    )}
+                    {/*Show login button for logged out users*/}
+                    {!user && (
+                        <Button
+                            className="hidden rounded-full md:flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-500/30 hover:shadow-lg hover:shadow-indigo-500/40 transition-all"
+                            onClick={() => {
+                                window.location.href = "/login";
+                            }}
+                        >
+                            <LuLogIn className="text-xl" />
+                            Login
+                        </Button>
+                    )}
                 </div>
+
+                {/* Mobile Menu Button */}
+                <button
+                    className="md:hidden p-2 rounded-full bg-white/80 backdrop-blur-sm shadow-md border border-gray-200"
+                    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                >
+                    {mobileMenuOpen ? <LuX className="text-xl" /> : <LuMenu className="text-xl" />}
+                </button>
             </div>
 
             {/* Mobile Menu */}
@@ -101,18 +122,36 @@ export default function NavBar() {
                             <Link
                                 key={index}
                                 href={item.href}
-                                className="text-gray-700 hover:text-indigo-600 font-medium py-2 border-b border-gray-100 last:border-0"
+                                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 rounded-full text-white shadow-md shadow-indigo-500/30 hover:shadow-lg hover:shadow-indigo-500/40 transition-all border-b border-gray-100 last:border-0"
                                 onClick={() => setMobileMenuOpen(false)}
                             >
                                 {item.label}
                             </Link>
                         ))}
-                        <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
-                            <Button className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 rounded-full text-white">
+                        {/*Show logout button for logged in users*/}
+                        {user && (
+                            <Button
+                                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 rounded-full text-white shadow-md shadow-indigo-500/30 hover:shadow-lg hover:shadow-indigo-500/40 transition-all"
+                                onClick={() => {
+                                    logout();
+                                }}
+                            >
+                                <LuLogOut className="mr-2" />
+                                Logout
+                            </Button>
+                        )}
+                        {/*Show login button for logged out users*/}
+                        {!user && (
+                            <Button
+                                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 rounded-full text-white shadow-md shadow-indigo-500/30 hover:shadow-lg hover:shadow-indigo-500/40 transition-all"
+                                onClick={() => {
+                                    window.location.href = "/login";
+                                }}
+                            >
                                 <LuLogIn className="mr-2" />
                                 Login
                             </Button>
-                        </Link>
+                        )}
                     </div>
                 </motion.div>
             )}
