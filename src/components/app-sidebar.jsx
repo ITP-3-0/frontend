@@ -42,12 +42,6 @@ export function AppSidebar({ ...props }) {
 
                         </Link>
                     </SidebarMenuItem>
-                    <SidebarMenuItem className="hover:bg-gray-200 p-2 my-2 rounded-md">
-                        <Link href="/dashboard/settings" className="flex items-center gap-2 text-gray-700 hover:text-gray-900">
-                            <Settings2 />
-                            <span className="font-semibold">Settings</span>
-                        </Link>
-                    </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarContent>
             <SidebarFooter>

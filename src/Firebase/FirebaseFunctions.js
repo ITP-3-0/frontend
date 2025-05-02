@@ -95,7 +95,7 @@ export const login = async (email, password) => {
                         } else if (data.role === "agent_l1" || data.role === "agent_l2") {
                             window.location.href = "/agent";
                         } else {
-                            window.location.href = "/dashboard";
+                            window.location.href = "/dashboard/user-management";
                         }
                     });
                 });
