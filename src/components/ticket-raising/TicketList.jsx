@@ -595,7 +595,7 @@ export default function TicketList({ tickets, isAgentView = false }) {
 
                         <AlertDialogFooter className="gap-2 sm:gap-0">
                             <AlertDialogCancel>Close</AlertDialogCancel>
-                            {selectedTicket && (
+                            {/* {selectedTicket && (
                                 <Button
                                     variant="outline"
                                     onClick={() => {
@@ -607,7 +607,7 @@ export default function TicketList({ tickets, isAgentView = false }) {
                                     <PencilIcon className="h-4 w-4 mr-2" />
                                     Edit
                                 </Button>
-                            )}
+                            )} */}
                         </AlertDialogFooter>
                     </AlertDialogContent>
                 </AlertDialog>
