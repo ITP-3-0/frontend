@@ -10,7 +10,7 @@ export default function EditTicketPageWrapper({ params }) {
     // Unwrap the params using React.use()
     const unwrappedParams = React.use(params);
     const { user, loading } = useAuth();
-    
+
     useEffect(() => {
         if (!user && !loading) {
             redirect("/login");

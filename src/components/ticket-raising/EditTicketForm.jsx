@@ -28,10 +28,10 @@ export default function EditTicketPage({ params }) {
         deviceName: "",
         distributionDate: "",
         warrantyPeriod: "",
-        agentName: "",
+        agentName: "", // This will be kept but not editable
     });
 
-    // Check if form has been modified
+    // Check if form has been modified - only consider title and description as editable
     const hasChanges = originalData && (formData.title !== originalData.title || formData.description !== originalData.description);
 
     useEffect(() => {
