@@ -4,16 +4,18 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { LuTicketCheck, LuMenu, LuX, LuLogIn, LuLogOut } from "react-icons/lu";
+import { LuTicketCheck, LuMenu, LuX, LuLogIn, LuLogOut, LuBell } from "react-icons/lu";
 import { FaHeadset } from "react-icons/fa";
 import { useAuth } from "@/Firebase/AuthContext";
 import { logout } from "@/Firebase/FirebaseFunctions";
+import axios from "axios";
 
 export default function NavBar() {
     const [scrolled, setScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [mounted, setMounted] = useState(false);
     const { user, loading } = useAuth();
+    const [hasNotifications, setHasNotifications] = useState(false);
 
     useEffect(() => {
         setMounted(true);
@@ -31,6 +33,24 @@ export default function NavBar() {
             window.removeEventListener("scroll", handleScroll);
         };
     }, []);
+
+    useEffect(() => {
+        // Check for notifications when user is available
+        if (user) {
+            checkNotifications();
+        }
+    }, [user]);
+
+    const checkNotifications = async () => {
+        try {
+            // Mock checking for notifications - replace with your actual API call
+            // For example: const response = await axios.get('/api/notifications/check');
+            // For now, just set to true to test the UI
+            setHasNotifications(true);
+        } catch (error) {
+            console.error("Error checking notifications:", error);
+        }
+    };
 
     return (
         <motion.header
@@ -73,16 +93,27 @@ export default function NavBar() {
                     {/*Show logout button for logged in users*/}
                     {user && (
                         <>
-                            <span className="hidden md:flex items-center text-gray-700 font-medium">Welcome, {user.displayName || user.email}</span>
-                            <Button
-                                className="hidden rounded-full md:flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-500/30 hover:shadow-lg hover:shadow-indigo-500/40 transition-all"
-                                onClick={() => {
-                                    logout();
-                                }}
-                            >
-                                <LuLogOut className="text-xl" />
-                                Logout
-                            </Button>
+                            <div className="hidden md:flex items-center gap-4">
+                                <span className="text-gray-700 font-medium">Welcome, {user.displayName || user.email}</span>
+
+                                {/* Notification Bell Icon */}
+                                <Link href="/notifications" className="relative">
+                                    <LuBell className="text-xl text-gray-700 hover:text-indigo-600 transition-colors" />
+                                    {hasNotifications && (
+                                        <div className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full border-2 border-white"></div>
+                                    )}
+                                </Link>
+
+                                <Button
+                                    className="rounded-full flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-500/30 hover:shadow-lg hover:shadow-indigo-500/40 transition-all"
+                                    onClick={() => {
+                                        logout();
+                                    }}
+                                >
+                                    <LuLogOut className="text-xl" />
+                                    Logout
+                                </Button>
+                            </div>
                         </>
                     )}
                     {/*Show login button for logged out users*/}
@@ -128,17 +159,32 @@ export default function NavBar() {
                                 {item.label}
                             </Link>
                         ))}
-                        {/*Show logout button for logged in users*/}
+                        {/*Show notification link and logout button for logged in users*/}
                         {user && (
-                            <Button
-                                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 rounded-full text-white shadow-md shadow-indigo-500/30 hover:shadow-lg hover:shadow-indigo-500/40 transition-all"
-                                onClick={() => {
-                                    logout();
-                                }}
-                            >
-                                <LuLogOut className="mr-2" />
-                                Logout
-                            </Button>
+                            <>
+                                <Link
+                                    href="/notifications"
+                                    className="flex items-center gap-2 bg-gradient-to-r from-indigo-400 to-purple-400 hover:from-indigo-500 hover:to-purple-500 rounded-full px-4 py-2 text-white shadow-md"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                >
+                                    <div className="relative inline-block">
+                                        <LuBell className="text-xl" />
+                                        {hasNotifications && (
+                                            <div className="absolute -top-1 -right-1 h-2 w-2 bg-red-500 rounded-full border border-white"></div>
+                                        )}
+                                    </div>
+                                    <span>Notifications</span>
+                                </Link>
+                                <Button
+                                    className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 rounded-full text-white shadow-md shadow-indigo-500/30 hover:shadow-lg hover:shadow-indigo-500/40 transition-all"
+                                    onClick={() => {
+                                        logout();
+                                    }}
+                                >
+                                    <LuLogOut className="mr-2" />
+                                    Logout
+                                </Button>
+                            </>
                         )}
                         {/*Show login button for logged out users*/}
                         {!user && (
