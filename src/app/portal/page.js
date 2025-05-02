@@ -1,6 +1,6 @@
 "use client";
 
-import { Spinner } from "@/components/ui/spinner";
+import LoadingComponent from "@/components/LoadingComponent/LoadingComponent";
 import { useAuth } from "@/Firebase/AuthContext";
 import { redirect } from "next/navigation";
 import React from "react";
@@ -11,7 +11,7 @@ export default function ClientPortal() {
     if (loading) {
         return (
             <div className="h-screen flex items-center justify-center">
-                <Spinner />
+                <LoadingComponent />
             </div>
         );
     }
