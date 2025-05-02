@@ -1,7 +1,9 @@
 import EditTicketPage from "@/components/ticket-raising/EditTicketForm";
+import { useAuth } from "@/Firebase/AuthContext";
+import { redirect } from "next/navigation";
 
 async function fetchTicketData(id) {
-    const response = await fetch(`http://localhost:5000/tickets/${id}`, { cache: "no-store" });
+    const response = await fetch(`/api/tickets/${id}`, { cache: "no-store" });
     if (!response.ok) {
         throw new Error("Failed to fetch ticket data");
     }
@@ -11,6 +13,11 @@ async function fetchTicketData(id) {
 
 export default async function EditTicket({ params }) {
     const ticketData = await fetchTicketData(params.id);
+    const { user, loading, setLoading } = useAuth();
+
+    if (!user && !loading) {
+        redirect("/login");
+    }
 
     return <EditTicketPage ticketData={ticketData} />;
 }

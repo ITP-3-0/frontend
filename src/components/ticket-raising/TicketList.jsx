@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { PencilIcon, TrashIcon, LaptopIcon, PlusIcon, SearchIcon, FilterIcon, EyeIcon, CalendarIcon, ClockIcon, UserIcon, TagIcon, CheckCircleIcon, XCircleIcon } from 'lucide-react'
+import { PencilIcon, TrashIcon, LaptopIcon, PlusIcon, SearchIcon, FilterIcon, EyeIcon, CalendarIcon, ClockIcon, UserIcon, TagIcon, CheckCircleIcon, XCircleIcon, FileTextIcon } from 'lucide-react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -45,6 +45,7 @@ import { motion } from "framer-motion"
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import ReplyForm from '../replies/ReplyForm';
 import ReplyList from '../replies/ReplyList';
+import { generatePdfReport } from "@/utils/reportGenerator";
 
 export default function TicketList({ tickets, isAgentView = false }) {
     const router = useRouter()
@@ -67,8 +68,16 @@ export default function TicketList({ tickets, isAgentView = false }) {
         setCurrentPage(1)
     }
 
-    const handleEdit = (id) => {
-        router.push(`/tickets/${id}/edit`)
+    const handleEdit = (id, status) => {
+        if (status === "in_progress" || status === "resolved") {
+            toast({
+                title: "Cannot edit ticket",
+                description: `Tickets with '${status}' status cannot be edited.`,
+                variant: "destructive",
+            });
+            return;
+        }
+        router.push(`/tickets/${id}/edit`);
     }
 
     const handleDelete = async () => {
@@ -105,14 +114,22 @@ export default function TicketList({ tickets, isAgentView = false }) {
         }
     }
 
-    const openDeleteDialog = (id) => {
-        setTicketToDelete(id)
-        setIsDeleteDialogOpen(true)
+    const openDeleteDialog = (id, status) => {
+        if (status === "in_progress" || status === "resolved") {
+            toast({
+                title: "Cannot delete ticket",
+                description: `Tickets with '${status}' status cannot be deleted.`,
+                variant: "destructive",
+            });
+            return;
+        }
+        setTicketToDelete(id);
+        setIsDeleteDialogOpen(true);
     }
 
     const handleSortChange = (value) => {
-        setSortOption(value)
-    }
+        setSortOption(value); // Update the selected sort option
+    };
 
     const handleView = (ticket) => {
         setSelectedTicket(ticket)
@@ -120,7 +137,7 @@ export default function TicketList({ tickets, isAgentView = false }) {
     }
 
     const handleReplyAdded = (updatedTicket) => {
-        setTicketList(ticketList.map(t => 
+        setTicketList(ticketList.map(t =>
             t._id === updatedTicket._id ? updatedTicket : t
         ))
         setSelectedTicket(updatedTicket)
@@ -166,9 +183,19 @@ export default function TicketList({ tickets, isAgentView = false }) {
         return [...ticketsToSort].sort((a, b) => {
             switch (sortOption) {
                 case "newest":
-                    return new Date(b.createdAt || b.distributionDate) - new Date(a.createdAt || a.distributionDate)
+                    // Safely get dates, preferring createdAt but falling back to distributionDate
+                    const dateA_newest = a.createdAt ? new Date(a.createdAt) :
+                        (a.distributionDate ? new Date(a.distributionDate) : new Date(0));
+                    const dateB_newest = b.createdAt ? new Date(b.createdAt) :
+                        (b.distributionDate ? new Date(b.distributionDate) : new Date(0));
+                    return dateB_newest - dateA_newest;
                 case "oldest":
-                    return new Date(a.createdAt || a.distributionDate) - new Date(b.createdAt || b.distributionDate)
+                    // Safely get dates, preferring createdAt but falling back to distributionDate
+                    const dateA_oldest = a.createdAt ? new Date(a.createdAt) :
+                        (a.distributionDate ? new Date(a.distributionDate) : new Date(0));
+                    const dateB_oldest = b.createdAt ? new Date(b.createdAt) :
+                        (b.distributionDate ? new Date(b.distributionDate) : new Date(0));
+                    return dateA_oldest - dateB_oldest;
                 case "title":
                     return a.title.localeCompare(b.title)
                 case "warranty":
@@ -190,7 +217,6 @@ export default function TicketList({ tickets, isAgentView = false }) {
             const matchesSearchQuery =
                 ticket.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 ticket.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                (ticket.agentName && ticket.agentName.toLowerCase().includes(searchQuery.toLowerCase())) ||
                 (ticket.deviceName && ticket.deviceName.toLowerCase().includes(searchQuery.toLowerCase()))
 
             // Filter by warranty status if tab is not "all"
@@ -225,6 +251,7 @@ export default function TicketList({ tickets, isAgentView = false }) {
                             <h1 className="text-3xl font-bold tracking-tight">Ticket Management</h1>
                             <p className="mt-1 opacity-90">View and manage support tickets</p>
                         </div>
+
                         <TooltipProvider>
                             <Tooltip>
                                 <TooltipTrigger asChild>
@@ -309,6 +336,24 @@ export default function TicketList({ tickets, isAgentView = false }) {
                                 />
                             </div>
 
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button
+                                            variant="secondary"
+                                            className="w-full sm:w-auto bg-green-600 text-white hover:bg-green-700"
+                                            onClick={() => generatePdfReport(filteredAndSortedTickets, getWarrantyStatus)}
+                                        >
+                                            <FileTextIcon className="h-4 w-4 mr-2" />
+                                            Generate Report
+                                        </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p>Generate a report of all ticket information</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <Button variant="outline" className="w-full sm:w-auto">
@@ -319,17 +364,37 @@ export default function TicketList({ tickets, isAgentView = false }) {
                                 <DropdownMenuContent align="end" className="w-[200px]">
                                     <DropdownMenuLabel>Sort by</DropdownMenuLabel>
                                     <DropdownMenuSeparator />
-                                    <DropdownMenuItem onClick={() => handleSortChange("newest")} className={sortOption === "newest" ? "bg-muted" : ""}>
+                                    <DropdownMenuItem
+                                        onClick={() => handleSortChange("newest")}
+                                        className={`flex items-center justify-between ${sortOption === "newest" ? "bg-muted font-bold" : ""
+                                            }`}
+                                    >
                                         Newest First
+                                        {sortOption === "newest" && <CheckCircleIcon className="h-4 w-4 text-green-500" />}
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => handleSortChange("oldest")} className={sortOption === "oldest" ? "bg-muted" : ""}>
+                                    <DropdownMenuItem
+                                        onClick={() => handleSortChange("oldest")}
+                                        className={`flex items-center justify-between ${sortOption === "oldest" ? "bg-muted font-bold" : ""
+                                            }`}
+                                    >
                                         Oldest First
+                                        {sortOption === "oldest" && <CheckCircleIcon className="h-4 w-4 text-green-500" />}
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => handleSortChange("title")} className={sortOption === "title" ? "bg-muted" : ""}>
+                                    <DropdownMenuItem
+                                        onClick={() => handleSortChange("title")}
+                                        className={`flex items-center justify-between ${sortOption === "title" ? "bg-muted font-bold" : ""
+                                            }`}
+                                    >
                                         Title (A-Z)
+                                        {sortOption === "title" && <CheckCircleIcon className="h-4 w-4 text-green-500" />}
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => handleSortChange("warranty")} className={sortOption === "warranty" ? "bg-muted" : ""}>
+                                    <DropdownMenuItem
+                                        onClick={() => handleSortChange("warranty")}
+                                        className={`flex items-center justify-between ${sortOption === "warranty" ? "bg-muted font-bold" : ""
+                                            }`}
+                                    >
                                         Warranty Status
+                                        {sortOption === "warranty" && <CheckCircleIcon className="h-4 w-4 text-green-500" />}
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
@@ -427,76 +492,126 @@ export default function TicketList({ tickets, isAgentView = false }) {
 
             {/* View Ticket Details Dialog */}
             {selectedTicket && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-                        <div className="flex justify-between items-start mb-4">
-                            <div>
-                                <h2 className="text-2xl font-bold">{selectedTicket.title}</h2>
-                                <p className="text-gray-600">{selectedTicket.description}</p>
+                <AlertDialog open={isViewModalOpen || showReplyForm} onOpenChange={(open) => {
+                    setIsViewModalOpen(open);
+                    if (!open) setSelectedTicket(null);
+                    if (!open) setShowReplyForm(false);
+                }}>
+                    <AlertDialogContent className="max-w-3xl max-h-[80vh] overflow-hidden flex flex-col">
+                        <AlertDialogHeader>
+                            <AlertDialogTitle className="text-xl">{selectedTicket.title}</AlertDialogTitle>
+                            <AlertDialogDescription className="text-sm">{selectedTicket.description}</AlertDialogDescription>
+                        </AlertDialogHeader>
+
+                        <ScrollArea className="flex-1 pr-4">
+                            <div className="space-y-4 py-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div className="flex items-start gap-2">
+                                        <div className="bg-muted p-2 rounded-full">
+                                            <LaptopIcon className="h-4 w-4 text-muted-foreground" />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-medium">Device</p>
+                                            <p className="text-sm text-muted-foreground">{selectedTicket.deviceName || "N/A"}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-start gap-2">
+                                        <div className="bg-muted p-2 rounded-full">
+                                            <TagIcon className="h-4 w-4 text-muted-foreground" />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-medium">Priority</p>
+                                            <Badge variant={selectedTicket.priority === 'high' ? 'destructive' :
+                                                selectedTicket.priority === 'medium' ? 'warning' : 'default'}>
+                                                {selectedTicket.priority}
+                                            </Badge>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-start gap-2">
+                                        <div className="bg-muted p-2 rounded-full">
+                                            <TagIcon className="h-4 w-4 text-muted-foreground" />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-medium">Status</p>
+                                            <Badge variant={selectedTicket.status === 'resolved' ? 'success' :
+                                                selectedTicket.status === 'in_progress' ? 'warning' : 'default'}>
+                                                {selectedTicket.status}
+                                            </Badge>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-start gap-2">
+                                        <div className="bg-muted p-2 rounded-full">
+                                            <TagIcon className="h-4 w-4 text-muted-foreground" />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-medium">Warranty Status</p>
+                                            <div className="mt-1">
+                                                {(() => {
+                                                    const status = getWarrantyStatus(selectedTicket)
+                                                    if (status.isActive) {
+                                                        return (
+                                                            <Badge variant="outline" className="bg-green-50 text-green-800 border-green-200">
+                                                                Active - {status.diffDays} days remaining
+                                                            </Badge>
+                                                        )
+                                                    } else {
+                                                        return (
+                                                            <Badge variant="outline" className="bg-red-50 text-red-800 border-red-200">
+                                                                Expired - {status.diffDays} days ago
+                                                            </Badge>
+                                                        )
+                                                    }
+                                                })()}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <Separator />
+
+                                <div>
+                                    <p className="text-sm font-medium mb-2">Description</p>
+                                    <Card className="bg-muted/50">
+                                        <CardContent className="p-3">
+                                            <p className="text-sm">{selectedTicket.description}</p>
+                                        </CardContent>
+                                    </Card>
+                                </div>
+
+                                <Separator />
+
+                                {showReplyForm && (
+                                    <>
+                                        <h3 className="text-lg font-semibold">Replies</h3>
+                                        <ReplyList replies={selectedTicket.replies || []} />
+                                        <ReplyForm ticketId={selectedTicket._id} onReplyAdded={handleReplyAdded} />
+                                    </>
+                                )}
                             </div>
-                            <Button variant="ghost" onClick={() => setSelectedTicket(null)}>
-                                Close
-                            </Button>
-                        </div>
+                        </ScrollArea>
 
-                        <div className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <p className="text-sm text-gray-500">Device</p>
-                                    <p>{selectedTicket.deviceName}</p>
-                                </div>
-                                <div>
-                                    <p className="text-sm text-gray-500">Priority</p>
-                                    <Badge variant={selectedTicket.priority === 'high' ? 'destructive' : 
-                                        selectedTicket.priority === 'medium' ? 'warning' : 'default'}>
-                                        {selectedTicket.priority}
-                                    </Badge>
-                                </div>
-                                <div>
-                                    <p className="text-sm text-gray-500">Status</p>
-                                    <Badge variant={selectedTicket.status === 'resolved' ? 'success' : 
-                                        selectedTicket.status === 'in_progress' ? 'warning' : 'default'}>
-                                        {selectedTicket.status}
-                                    </Badge>
-                                </div>
-                                <div>
-                                    <p className="text-sm text-gray-500">Created By</p>
-                                    <p>{selectedTicket.creator}</p>
-                                </div>
-                            </div>
-
-                            <Separator />
-
-                            <h3 className="text-lg font-semibold">Replies</h3>
-                            <ReplyList replies={selectedTicket.replies} />
-
-                            {isAgentView && (
-                                <>
-                                    <Separator />
-                                    <h3 className="text-lg font-semibold">Add Reply</h3>
-                                    <ReplyForm 
-                                        ticketId={selectedTicket._id} 
-                                        onReplyAdded={handleReplyAdded}
-                                    />
-                                </>
-                            )}
-                        </div>
-                    </div>
-                </div>
+                        <AlertDialogFooter className="gap-2 sm:gap-0">
+                            <AlertDialogCancel>Close</AlertDialogCancel>
+                            {/* {selectedTicket && (
+                                <Button
+                                    variant="outline"
+                                    onClick={() => {
+                                        setIsViewModalOpen(false);
+                                        setSelectedTicket(null);
+                                        handleEdit(selectedTicket._id);
+                                    }}
+                                >
+                                    <PencilIcon className="h-4 w-4 mr-2" />
+                                    Edit
+                                </Button>
+                            )} */}
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
             )}
-
-            <TooltipPrimitive.Provider>
-                <TooltipPrimitive.Root>
-                    <TooltipPrimitive.Content
-                        side="top"
-                        align="center"
-                        className="bg-black text-white text-sm px-2 py-1 rounded shadow-lg"
-                    >
-                        Tooltip content
-                        <TooltipPrimitive.Arrow className="fill-black" />
-                    </TooltipPrimitive.Content>
-                </TooltipPrimitive.Root>
-            </TooltipPrimitive.Provider>
         </div>
     )
 }
@@ -518,12 +633,13 @@ function TicketTable({
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead>Title</TableHead>
+                                <TableHead>Reference ID</TableHead>
+                                <TableHead className="hidden md:table-cell">Title</TableHead>
                                 <TableHead className="hidden md:table-cell">Description</TableHead>
                                 <TableHead className="hidden lg:table-cell">Device</TableHead>
                                 <TableHead className="hidden lg:table-cell">Distribution Date</TableHead>
                                 <TableHead className="hidden lg:table-cell">Warranty</TableHead>
-                                <TableHead className="hidden md:table-cell">Agent</TableHead>
+                                <TableHead className="text-right">Ticket Status</TableHead>
                                 <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -552,8 +668,11 @@ function TicketTable({
                                             <TableCell className="font-medium">
                                                 <div className="flex items-center gap-2">
                                                     <div className={`w-2 h-2 rounded-full ${warrantyStatus.isActive ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                                                    {ticket.title}
+                                                    {ticket._id.slice(0, 7)} {/* Show only the first 7 characters */}
                                                 </div>
+                                            </TableCell>
+                                            <TableCell className="hidden md:table-cell max-w-[200px] truncate">
+                                                {ticket.title}
                                             </TableCell>
                                             <TableCell className="hidden md:table-cell max-w-[200px] truncate">
                                                 {ticket.description}
@@ -581,7 +700,9 @@ function TicketTable({
                                                     }
                                                 })()}
                                             </TableCell>
-                                            <TableCell className="hidden md:table-cell">{ticket.agentName || "N/A"}</TableCell>
+                                            <TableCell className="hidden md:table-cell max-w-[200px] truncate">
+                                                {ticket.status}
+                                            </TableCell>
                                             <TableCell className="text-right">
                                                 <div className="flex items-center justify-end gap-1">
                                                     <TooltipProvider>
@@ -609,7 +730,7 @@ function TicketTable({
                                                                 <Button
                                                                     variant="ghost"
                                                                     size="icon"
-                                                                    onClick={() => handleEdit(ticket._id)}
+                                                                    onClick={() => handleEdit(ticket._id, ticket.status)}
                                                                     className="h-8 w-8 opacity-70 group-hover:opacity-100 transition-opacity"
                                                                 >
                                                                     <PencilIcon className="h-4 w-4" />
@@ -617,7 +738,9 @@ function TicketTable({
                                                                 </Button>
                                                             </TooltipTrigger>
                                                             <TooltipContent>
-                                                                <p>Edit ticket</p>
+                                                                {ticket.status === "in_progress" || ticket.status === "resolved"
+                                                                    ? `Cannot edit ${ticket.status} ticket`
+                                                                    : "Edit ticket"}
                                                             </TooltipContent>
                                                         </Tooltip>
                                                     </TooltipProvider>
@@ -629,7 +752,7 @@ function TicketTable({
                                                                     variant="ghost"
                                                                     size="icon"
                                                                     disabled={isLoading}
-                                                                    onClick={() => openDeleteDialog(ticket._id)}
+                                                                    onClick={() => openDeleteDialog(ticket._id, ticket.status)}
                                                                     className="h-8 w-8 text-destructive opacity-70 group-hover:opacity-100 transition-opacity"
                                                                 >
                                                                     <TrashIcon className="h-4 w-4" />
@@ -637,7 +760,9 @@ function TicketTable({
                                                                 </Button>
                                                             </TooltipTrigger>
                                                             <TooltipContent>
-                                                                <p>Delete ticket</p>
+                                                                {ticket.status === "in_progress" || ticket.status === "resolved"
+                                                                    ? `Cannot delete ${ticket.status} ticket`
+                                                                    : "Delete ticket"}
                                                             </TooltipContent>
                                                         </Tooltip>
                                                     </TooltipProvider>

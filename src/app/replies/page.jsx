@@ -1,15 +1,23 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/Firebase/AuthContext";
+import LoadingComponent from "@/components/LoadingComponent/LoadingComponent";
 
 export default function ReplyList() {
     const [replies, setReplies] = useState([]);
-    const [loading, setLoading] = useState(true);
+    // const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const router = useRouter();
+
+    const { user, loading, setLoading } = useAuth();
+
+    if (!user && !loading) {
+        redirect("/login");
+    }
 
     useEffect(() => {
         fetch("api/replies/")
@@ -17,7 +25,7 @@ export default function ReplyList() {
                 if (!res.ok) {
                 }
                 return res.json();
-                    throw new Error("Failed to fetch replies");
+                throw new Error("Failed to fetch replies");
             })
             .then((data) => {
                 console.log("API Response:", data);
@@ -52,10 +60,10 @@ export default function ReplyList() {
     };
 
     const handleEdit = (id) => {
-        router.push(`/replies/edit/${id}`);  
+        router.push(`/replies/edit/${id}`);
     };
 
-    if (loading) return <p>Loading...</p>;
+    if (loading) return <LoadingComponent />;
     if (error) return <p>Error: {error}</p>;
 
     return (

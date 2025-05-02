@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import TicketList from '../ticket-raising/TicketList';
+import TicketList from "../ticket-raising/TicketList";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -16,9 +16,9 @@ export default function AgentTicketList() {
 
     const fetchTickets = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/tickets');
+            const response = await fetch("/api/tickets");
             if (!response.ok) {
-                throw new Error('Failed to fetch tickets');
+                throw new Error("Failed to fetch tickets");
             }
             const data = await response.json();
             setTickets(data.tickets);
@@ -32,10 +32,10 @@ export default function AgentTicketList() {
     };
 
     const getTicketCount = (status) => {
-        return tickets.filter(ticket => ticket.status === status).length;
+        return tickets.filter((ticket) => ticket.status === status).length;
     };
 
-    const filteredTickets = tickets.filter(ticket => {
+    const filteredTickets = tickets.filter((ticket) => {
         if (activeTab === "all") return true;
         return ticket.status === activeTab;
     });
@@ -88,13 +88,10 @@ export default function AgentTicketList() {
                         <TabsTrigger value="resolved">Resolved</TabsTrigger>
                     </TabsList>
                     <TabsContent value={activeTab}>
-                        <TicketList 
-                            tickets={filteredTickets} 
-                            isAgentView={true}
-                        />
+                        <TicketList tickets={filteredTickets} isAgentView={true} />
                     </TabsContent>
                 </Tabs>
             </div>
         </div>
     );
-} 
+}

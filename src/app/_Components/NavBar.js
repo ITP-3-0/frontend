@@ -1,38 +1,39 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { motion } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import { LuTicketCheck, LuMenu, LuX } from "react-icons/lu"
-import { FaHeadset } from "react-icons/fa"
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { LuTicketCheck, LuMenu, LuX, LuLogIn } from "react-icons/lu";
+import { FaHeadset } from "react-icons/fa";
 
 export default function NavBar() {
-    const [scrolled, setScrolled] = useState(false)
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-    const [mounted, setMounted] = useState(false)
+    const [scrolled, setScrolled] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
-        setMounted(true)
+        setMounted(true);
 
         const handleScroll = () => {
             if (window.scrollY > 10) {
-                setScrolled(true)
+                setScrolled(true);
             } else {
-                setScrolled(false)
+                setScrolled(false);
             }
-        }
+        };
 
-        window.addEventListener("scroll", handleScroll)
+        window.addEventListener("scroll", handleScroll);
         return () => {
-            window.removeEventListener("scroll", handleScroll)
-        }
-    }, [])
+            window.removeEventListener("scroll", handleScroll);
+        };
+    }, []);
 
     return (
         <motion.header
-            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? "bg-white/90 backdrop-blur-md shadow-md py-3" : "bg-transparent py-5"
-                }`}
+            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+                scrolled ? "bg-white/90 backdrop-blur-md shadow-md py-3" : "bg-transparent py-5"
+            }`}
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: mounted ? 1 : 0, y: mounted ? 0 : -20 }}
             transition={{ duration: 0.5 }}
@@ -68,10 +69,10 @@ export default function NavBar() {
 
                     {/* Action Button */}
                     <div className="hidden md:block">
-                        <Link href="/tickets/ticketList">
+                        <Link href="/login">
                             <Button className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 rounded-full text-white shadow-md shadow-indigo-500/30 hover:shadow-lg hover:shadow-indigo-500/40 transition-all">
-                                <LuTicketCheck className="mr-2" />
-                                View All Tickets
+                                <LuLogIn className="mr-2" />
+                                Login
                             </Button>
                         </Link>
                     </div>
@@ -106,17 +107,17 @@ export default function NavBar() {
                                 {item.label}
                             </Link>
                         ))}
-                        <Link href="/tickets/ticketList" onClick={() => setMobileMenuOpen(false)}>
+                        <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
                             <Button className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 rounded-full text-white">
-                                <LuTicketCheck className="mr-2" />
-                                View All Tickets
+                                <LuLogIn className="mr-2" />
+                                Login
                             </Button>
                         </Link>
                     </div>
                 </motion.div>
             )}
         </motion.header>
-    )
+    );
 }
 
 const navItems = [
@@ -124,4 +125,4 @@ const navItems = [
     { label: "Help Desk", href: "/help-desk" },
     { label: "Forum", href: "/replies" },
     { label: "FAQs", href: "/faqs" },
-]
+];

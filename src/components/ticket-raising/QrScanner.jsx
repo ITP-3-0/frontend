@@ -20,6 +20,7 @@ export default function QrScanner({ onScanSuccess, onClose }) {
 
         // Start scanning
         qrScanner.render((decodedText) => {
+            console.log("Scanned QR Code Data:", decodedText); // Debugging
             try {
                 let deviceData;
 
@@ -38,7 +39,6 @@ export default function QrScanner({ onScanSuccess, onClose }) {
                                 'Device Name': 'deviceName',
                                 'Distribution Date': 'distributionDate',
                                 'Warranty Period': 'warrantyPeriod',
-                                'Agent Name': 'agentName'
                             };
 
                             const mappedKey = propertyMap[key] || key.toLowerCase().replace(/\s+/g, '');

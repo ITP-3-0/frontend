@@ -10,8 +10,8 @@ import { FaQuestion, FaHeadset } from "react-icons/fa";
 import { HiOutlineSupport } from "react-icons/hi";
 import { useAuth } from "@/Firebase/AuthContext";
 import NavBar from "./_Components/NavBar";
-import { Spinner } from "@/components/ui/spinner";
 import { ChatWidget } from "@/components/chat-widget";
+import LoadingComponent from "@/components/LoadingComponent/LoadingComponent";
 
 export default function Home() {
     const { loading } = useAuth();
@@ -24,7 +24,7 @@ export default function Home() {
     if (loading) {
         return (
             <div className="h-screen flex items-center justify-center">
-                <Spinner />
+                <LoadingComponent />
             </div>
         );
     }
@@ -63,7 +63,7 @@ export default function Home() {
                         <h1 className="text-5xl sm:text-6xl font-bold text-gray-900 leading-tight">
                             Tech troubles? <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600">
-                                We've got you covered
+                                We&apos;ve got you covered
                             </span>
                         </h1>
 
@@ -80,7 +80,10 @@ export default function Home() {
                                 </Button>
                             </Link>
 
-                            <Button variant="outline" className="h-14 px-8 bg-white/80 backdrop-blur-sm rounded-full text-indigo-700 border-indigo-200 hover:bg-white hover:border-indigo-300 shadow-md transition-all hover:-translate-y-0.5">
+                            <Button
+                                variant="outline"
+                                className="h-14 px-8 bg-white/80 backdrop-blur-sm rounded-full text-indigo-700 border-indigo-200 hover:bg-white hover:border-indigo-300 shadow-md transition-all hover:-translate-y-0.5"
+                            >
                                 <FaQuestion className="mr-2" />
                                 Browse FAQs
                             </Button>
@@ -91,7 +94,9 @@ export default function Home() {
                                 <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white text-xs">JD</div>
                                 <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white text-xs">KL</div>
                                 <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs">MN</div>
-                                <div className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-500 text-xs">+5</div>
+                                <div className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-500 text-xs">
+                                    +5
+                                </div>
                             </div>
                             <p className="text-sm text-gray-600">
                                 <span className="font-semibold">2,500+</span> tickets resolved this month
@@ -107,14 +112,7 @@ export default function Home() {
                         transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
                     >
                         <div className="relative z-10">
-                            <Image
-                                src="/women_on_homepage.png"
-                                alt="Support"
-                                width={600}
-                                height={600}
-                                className="object-contain"
-                                priority
-                            />
+                            <Image src="/women_on_homepage.png" alt="Support" width={600} height={600} className="object-contain" priority />
                         </div>
 
                         {/* Floating Elements */}
@@ -203,18 +201,18 @@ const features = [
         title: "Raise Support Tickets",
         description: "Create detailed support tickets and track their progress until resolution.",
         icon: <LuTicketCheck className="text-xl" />,
-        bgColor: "bg-gradient-to-r from-indigo-600 to-purple-600"
+        bgColor: "bg-gradient-to-r from-indigo-600 to-purple-600",
     },
     {
         title: "Knowledge Base",
         description: "Access our comprehensive FAQ library for instant solutions to common problems.",
         icon: <FaQuestion className="text-xl" />,
-        bgColor: "bg-gradient-to-r from-purple-600 to-blue-600"
+        bgColor: "bg-gradient-to-r from-purple-600 to-blue-600",
     },
     {
         title: "Live Support",
         description: "Connect with our support team through live chat for real-time assistance.",
         icon: <FaHeadset className="text-xl" />,
-        bgColor: "bg-gradient-to-r from-blue-600 to-indigo-600"
-    }
+        bgColor: "bg-gradient-to-r from-blue-600 to-indigo-600",
+    },
 ];
