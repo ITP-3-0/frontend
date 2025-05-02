@@ -133,7 +133,8 @@ export default function TicketList({ tickets, isAgentView = false }) {
 
     const handleView = (ticket) => {
         setSelectedTicket(ticket)
-        setShowReplyForm(true)
+        setIsViewModalOpen(true)
+        // Removed setShowReplyForm(true) to disable reply functionality
     }
 
     const handleReplyAdded = (updatedTicket) => {
@@ -492,10 +493,10 @@ export default function TicketList({ tickets, isAgentView = false }) {
 
             {/* View Ticket Details Dialog */}
             {selectedTicket && (
-                <AlertDialog open={isViewModalOpen || showReplyForm} onOpenChange={(open) => {
+                <AlertDialog open={isViewModalOpen} onOpenChange={(open) => {
                     setIsViewModalOpen(open);
                     if (!open) setSelectedTicket(null);
-                    if (!open) setShowReplyForm(false);
+                    // Removed the showReplyForm reset
                 }}>
                     <AlertDialogContent className="max-w-3xl max-h-[80vh] overflow-hidden flex flex-col">
                         <AlertDialogHeader>
@@ -581,33 +582,12 @@ export default function TicketList({ tickets, isAgentView = false }) {
                                     </Card>
                                 </div>
 
-                                <Separator />
-
-                                {showReplyForm && (
-                                    <>
-                                        <h3 className="text-lg font-semibold">Replies</h3>
-                                        <ReplyList replies={selectedTicket.replies || []} />
-                                        <ReplyForm ticketId={selectedTicket._id} onReplyAdded={handleReplyAdded} />
-                                    </>
-                                )}
+                                {/* Removed the Reply section completely */}
                             </div>
                         </ScrollArea>
 
                         <AlertDialogFooter className="gap-2 sm:gap-0">
                             <AlertDialogCancel>Close</AlertDialogCancel>
-                            {/* {selectedTicket && (
-                                <Button
-                                    variant="outline"
-                                    onClick={() => {
-                                        setIsViewModalOpen(false);
-                                        setSelectedTicket(null);
-                                        handleEdit(selectedTicket._id);
-                                    }}
-                                >
-                                    <PencilIcon className="h-4 w-4 mr-2" />
-                                    Edit
-                                </Button>
-                            )} */}
                         </AlertDialogFooter>
                     </AlertDialogContent>
                 </AlertDialog>
