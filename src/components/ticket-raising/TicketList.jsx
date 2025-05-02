@@ -578,7 +578,43 @@ export default function TicketList({ tickets, isAgentView = false }) {
                                     </Card>
                                 </div>
 
-                                {/* Removed the Reply section completely */}
+                                {/* Display all replies */}
+                                <div className="border rounded-md p-4 bg-muted/30 mt-4">
+                                    <h3 className="text-sm font-semibold mb-3">Agent Replies({selectedTicket.replies?.length || 0})</h3>
+
+                                    <ScrollArea className="h-[200px]">
+                                        <div className="flex flex-col gap-3">
+                                            {selectedTicket.replies?.map((reply, index) => (
+                                                <div key={reply._id || index} className="bg-white border rounded-md p-3 shadow-sm">
+                                                    <div className="flex justify-between items-center mb-2">
+                                                        <div className="flex items-center gap-2">
+                                                            <div className="bg-blue-100 rounded-full p-1">
+                                                                <UserIcon className="h-4 w-4 text-blue-600" />
+                                                            </div>
+                                                            <span className="font-medium">{reply.agentName || "Agent"}</span>
+                                                        </div>
+                                                        <span className="text-xs text-muted-foreground">
+                                                            {new Date(reply.createdAt).toLocaleString()}
+                                                        </span>
+                                                    </div>
+                                                    <p className="text-sm mb-2">{reply.message}</p>
+                                                    {reply.content && (
+                                                        <div className="bg-blue-50 p-3 rounded border border-blue-200 overflow-x-auto">
+                                                            <pre className="text-xs whitespace-pre-wrap text-blue-900">{reply.content}</pre>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ))}
+
+                                            {/* If no replies */}
+                                            {(!selectedTicket.replies || selectedTicket.replies.length === 0) && (
+                                                <div className="text-center p-4 text-muted-foreground text-sm">
+                                                    No replies for this ticket yet.
+                                                </div>
+                                            )}
+                                        </div>
+                                    </ScrollArea>
+                                </div>
                             </div>
                         </ScrollArea>
 

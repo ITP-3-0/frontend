@@ -39,7 +39,7 @@ export default function TicketListPage() {
     }
 
     return (
-        <div>
+        <div className="h-full">
             <TicketList tickets={tickets} />
         </div>
     );
