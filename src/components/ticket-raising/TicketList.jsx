@@ -184,19 +184,15 @@ export default function TicketList({ tickets, isAgentView = false }) {
         return [...ticketsToSort].sort((a, b) => {
             switch (sortOption) {
                 case "newest":
-                    // Safely get dates, preferring createdAt but falling back to distributionDate
-                    const dateA_newest = a.createdAt ? new Date(a.createdAt) :
-                        (a.distributionDate ? new Date(a.distributionDate) : new Date(0));
-                    const dateB_newest = b.createdAt ? new Date(b.createdAt) :
-                        (b.distributionDate ? new Date(b.distributionDate) : new Date(0));
-                    return dateB_newest - dateA_newest;
+                    // Use creation date for sorting, with proper fallback logic
+                    const dateA_newest = new Date(a.createdAt || a.distributionDate || 0);
+                    const dateB_newest = new Date(b.createdAt || b.distributionDate || 0);
+                    return dateB_newest - dateA_newest; // Newest first (descending)
                 case "oldest":
-                    // Safely get dates, preferring createdAt but falling back to distributionDate
-                    const dateA_oldest = a.createdAt ? new Date(a.createdAt) :
-                        (a.distributionDate ? new Date(a.distributionDate) : new Date(0));
-                    const dateB_oldest = b.createdAt ? new Date(b.createdAt) :
-                        (b.distributionDate ? new Date(b.distributionDate) : new Date(0));
-                    return dateA_oldest - dateB_oldest;
+                    // Use creation date for sorting, with proper fallback logic
+                    const dateA_oldest = new Date(a.createdAt || a.distributionDate || 0);
+                    const dateB_oldest = new Date(b.createdAt || b.distributionDate || 0);
+                    return dateA_oldest - dateB_oldest; // Oldest first (ascending)
                 case "title":
                     return a.title.localeCompare(b.title)
                 case "warranty":
@@ -680,8 +676,13 @@ function TicketTable({
                                                     }
                                                 })()}
                                             </TableCell>
-                                            <TableCell className="hidden md:table-cell max-w-[200px] truncate">
-                                                {ticket.status}
+                                            <TableCell className="text-right">
+                                                <Badge variant={
+                                                    ticket.status === 'resolved' ? 'success' :
+                                                        ticket.status === 'in_progress' ? 'warning' : 'default'
+                                                }>
+                                                    {ticket.status || "open"}
+                                                </Badge>
                                             </TableCell>
                                             <TableCell className="text-right">
                                                 <div className="flex items-center justify-end gap-1">
