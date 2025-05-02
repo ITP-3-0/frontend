@@ -5,7 +5,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useAuth } from "@/Firebase/AuthContext";
 import { redirect, useRouter } from "next/navigation";
-import { Spinner } from "@/components/ui/spinner";
+import loading from "../loading";
 import { useEffect, useState } from "react";
 
 export default function DashboardLayout({ children }) {
@@ -56,7 +56,7 @@ export default function DashboardLayout({ children }) {
     } else {
         return (
             <div className="h-screen flex items-center justify-center">
-                <Spinner />
+                <loading />
             </div>
         );
     }

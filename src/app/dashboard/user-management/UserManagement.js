@@ -162,7 +162,7 @@ export function UserManagement({ props }) {
 
     useEffect(() => {
         // this should be changed to government url
-        const eventSource = new EventSource("/apint-creation/stream");
+        const eventSource = new EventSource("http://localhost:5000/users/bulk-account-creation/stream");
 
         eventSource.addEventListener("finished", (e) => {
             toast.dismiss();
