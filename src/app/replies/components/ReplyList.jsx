@@ -9,7 +9,7 @@ export default function ReplyList() {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        fetch("http://localhost:5000/replies/")
+        fetch("/api/replies/")
             .then((res) => {
                 if (!res.ok) {
                     throw new Error("Failed to fetch replies");
@@ -29,7 +29,7 @@ export default function ReplyList() {
     }, []);
 
     const getTicketId = (relatedTicketId) => {
-        return relatedTicketId.slice(0, 6); 
+        return relatedTicketId.slice(0, 6);
     };
 
     if (loading) return <p>Loading...</p>;

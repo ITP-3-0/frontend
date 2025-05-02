@@ -23,7 +23,7 @@ export default function TicketReply() {
         const fetchTickets = async () => {
             try {
                 // Use the correct API endpoint - adjust based on your backend setup
-                const response = await fetch("http://localhost:5000/tickets");
+                const response = await fetch("/api/tickets");
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -52,11 +52,11 @@ export default function TicketReply() {
 
             try {
                 // Using the correct endpoint with base URL
-                const response = await fetch(`http://localhost:5000/tickets/${selectedTicketId}`, {
-                    method: 'GET',
+                const response = await fetch(`/api/tickets/${selectedTicketId}`, {
+                    method: "GET",
                     headers: {
-                        'Content-Type': 'application/json',
-                    }
+                        "Content-Type": "application/json",
+                    },
                 });
 
                 if (!response.ok) {
@@ -68,8 +68,8 @@ export default function TicketReply() {
                 // Check if the ticket data contains replies
                 if (data.ticket && Array.isArray(data.ticket.replies)) {
                     // Filter out only agent replies
-                    const onlyAgentReplies = data.ticket.replies.filter(reply =>
-                        reply.agentName && reply.agentName !== 'undefined' && reply.agentName !== 'null'
+                    const onlyAgentReplies = data.ticket.replies.filter(
+                        (reply) => reply.agentName && reply.agentName !== "undefined" && reply.agentName !== "null"
                     );
 
                     setFilteredReplies(data.ticket.replies);
@@ -100,9 +100,7 @@ export default function TicketReply() {
                         <MessageCircle className="h-6 w-6 text-primary" />
                         Ticket Replies
                     </CardTitle>
-                    <CardDescription>
-                        View agent responses to your support tickets
-                    </CardDescription>
+                    <CardDescription>View agent responses to your support tickets</CardDescription>
                 </CardHeader>
                 <CardContent>
                     {/* Ticket ID Selector */}
@@ -176,9 +174,7 @@ export default function TicketReply() {
                                     <CardHeader className="bg-slate-50 flex flex-row justify-between items-center pb-3">
                                         <div>
                                             <CardTitle className="text-lg">Ticket Conversation</CardTitle>
-                                            <CardDescription className="text-xs mt-1">
-                                                ID: {selectedTicketId}
-                                            </CardDescription>
+                                            <CardDescription className="text-xs mt-1">ID: {selectedTicketId}</CardDescription>
                                         </div>
                                         <Button
                                             variant="outline"
@@ -220,17 +216,20 @@ export default function TicketReply() {
                                                                         <div className="flex items-center gap-2">
                                                                             <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center">
                                                                                 <span className="text-xs font-semibold text-primary">
-                                                                                    {reply.agentName?.charAt(0) || 'A'}
+                                                                                    {reply.agentName?.charAt(0) || "A"}
                                                                                 </span>
                                                                             </div>
                                                                             <span className="font-medium text-sm text-slate-900">
-                                                                                {reply.agentName || 'Agent'}
+                                                                                {reply.agentName || "Agent"}
                                                                             </span>
                                                                         </div>
                                                                         <div className="flex items-center">
                                                                             {reply.status && (
-                                                                                <Badge variant={reply.status === 'resolved' ? "success" : "outline"} className="mr-2">
-                                                                                    {reply.status === 'resolved' ? (
+                                                                                <Badge
+                                                                                    variant={reply.status === "resolved" ? "success" : "outline"}
+                                                                                    className="mr-2"
+                                                                                >
+                                                                                    {reply.status === "resolved" ? (
                                                                                         <span className="flex items-center gap-1">
                                                                                             <CheckCircle className="h-3 w-3" /> Resolved
                                                                                         </span>
@@ -242,11 +241,11 @@ export default function TicketReply() {
                                                                                 </Badge>
                                                                             )}
                                                                             <span className="text-xs text-slate-400">
-                                                                                {new Date(reply.createdAt).toLocaleString('en-US', {
-                                                                                    month: 'short',
-                                                                                    day: 'numeric',
-                                                                                    hour: '2-digit',
-                                                                                    minute: '2-digit'
+                                                                                {new Date(reply.createdAt).toLocaleString("en-US", {
+                                                                                    month: "short",
+                                                                                    day: "numeric",
+                                                                                    hour: "2-digit",
+                                                                                    minute: "2-digit",
                                                                                 })}
                                                                             </span>
                                                                         </div>

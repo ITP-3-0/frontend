@@ -1,7 +1,7 @@
 import EditTicketPage from "@/components/ticket-raising/EditTicketForm";
 
 async function fetchTicketData(id) {
-    const response = await fetch(`http://localhost:5000/tickets/${id}`, { cache: "no-store" });
+    const response = await fetch(`/api/tickets/${id}`, { cache: "no-store" });
     if (!response.ok) {
         throw new Error("Failed to fetch ticket data");
     }

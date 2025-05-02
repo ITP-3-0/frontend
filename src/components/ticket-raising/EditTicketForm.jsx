@@ -1,27 +1,27 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { ArrowLeft, Loader2, Smartphone, Calendar, Clock, User, AlertCircle, CheckCircle, Save, X } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Skeleton } from "@/components/ui/skeleton"
-import { useToast } from "@/hooks/use-toast"
-import { Separator } from "@/components/ui/separator"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { ArrowLeft, Loader2, Smartphone, Calendar, Clock, User, AlertCircle, CheckCircle, Save, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useToast } from "@/hooks/use-toast";
+import { Separator } from "@/components/ui/separator";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export default function EditTicketPage({ params }) {
-    const router = useRouter()
-    const { toast } = useToast()
-    const { id } = params
-    const [isLoading, setIsLoading] = useState(true)
-    const [isSubmitting, setIsSubmitting] = useState(false)
-    const [error, setError] = useState(null)
-    const [originalData, setOriginalData] = useState(null)
+    const router = useRouter();
+    const { toast } = useToast();
+    const { id } = params;
+    const [isLoading, setIsLoading] = useState(true);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [error, setError] = useState(null);
+    const [originalData, setOriginalData] = useState(null);
     const [formData, setFormData] = useState({
         title: "",
         description: "",
@@ -29,29 +29,28 @@ export default function EditTicketPage({ params }) {
         distributionDate: "",
         warrantyPeriod: "",
         agentName: "",
-    })
+    });
 
     // Check if form has been modified
-    const hasChanges =
-        originalData && (formData.title !== originalData.title || formData.description !== originalData.description)
+    const hasChanges = originalData && (formData.title !== originalData.title || formData.description !== originalData.description);
 
     useEffect(() => {
         const fetchTicket = async () => {
             try {
-                const response = await fetch(`http://localhost:5000/tickets/${id}`)
+                const response = await fetch(`/api/tickets/${id}`);
 
                 if (!response.ok) {
-                    const errorText = await response.text()
-                    throw new Error(errorText || "Failed to fetch ticket")
+                    const errorText = await response.text();
+                    throw new Error(errorText || "Failed to fetch ticket");
                 }
 
-                const data = await response.json()
+                const data = await response.json();
 
                 // Format date for input field if it exists
-                let formattedDate = ""
+                let formattedDate = "";
                 if (data.ticket.distributionDate) {
-                    const date = new Date(data.ticket.distributionDate)
-                    formattedDate = date.toISOString().split("T")[0]
+                    const date = new Date(data.ticket.distributionDate);
+                    formattedDate = date.toISOString().split("T")[0];
                 }
 
                 const ticketData = {
@@ -61,101 +60,101 @@ export default function EditTicketPage({ params }) {
                     distributionDate: formattedDate,
                     warrantyPeriod: data.ticket.warrantyPeriod || "",
                     agentName: data.ticket.agentName || "",
-                }
+                };
 
-                setFormData(ticketData)
-                setOriginalData(ticketData)
+                setFormData(ticketData);
+                setOriginalData(ticketData);
             } catch (error) {
-                console.error("Error fetching ticket:", error)
-                setError(error.message || "An unexpected error occurred")
+                console.error("Error fetching ticket:", error);
+                setError(error.message || "An unexpected error occurred");
             } finally {
-                setIsLoading(false)
+                setIsLoading(false);
             }
-        }
+        };
 
-        fetchTicket()
-    }, [id])
+        fetchTicket();
+    }, [id]);
 
     const handleChange = (e) => {
-        const { name, value } = e.target
-        setFormData((prev) => ({ ...prev, [name]: value }))
-    }
+        const { name, value } = e.target;
+        setFormData((prev) => ({ ...prev, [name]: value }));
+    };
 
     const handleSubmit = async (e) => {
-        e.preventDefault()
-        setIsSubmitting(true)
+        e.preventDefault();
+        setIsSubmitting(true);
 
         try {
-            const response = await fetch(`http://localhost:5000/tickets/${id}`, {
+            const response = await fetch(`/api/tickets/${id}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(formData),
-            })
+            });
 
             if (!response.ok) {
-                const errorData = await response.text()
-                throw new Error(errorData || "Failed to update ticket")
+                const errorData = await response.text();
+                throw new Error(errorData || "Failed to update ticket");
             }
 
             toast({
                 title: "Success",
                 description: "Ticket updated successfully",
                 variant: "success",
-            })
+            });
 
-            router.push("/tickets/ticketList")
+            router.push("/tickets/ticketList");
         } catch (error) {
-            console.error("Error updating ticket:", error)
-            setError(error.message)
+            console.error("Error updating ticket:", error);
+            setError(error.message);
 
             toast({
                 title: "Error",
                 description: error.message || "Failed to update ticket",
                 variant: "destructive",
-            })
+            });
         } finally {
-            setIsSubmitting(false)
+            setIsSubmitting(false);
         }
-    }
+    };
 
     // Calculate warranty status
     const getWarrantyStatus = () => {
         try {
-            if (!formData.distributionDate || !formData.warrantyPeriod) return null
+            if (!formData.distributionDate || !formData.warrantyPeriod) return null;
 
-            const currentDate = new Date()
-            const distributionDate = new Date(formData.distributionDate)
+            const currentDate = new Date();
+            const distributionDate = new Date(formData.distributionDate);
 
-            let warrantyMonths = 0
+            let warrantyMonths = 0;
             if (typeof formData.warrantyPeriod === "number") {
-                warrantyMonths = formData.warrantyPeriod
+                warrantyMonths = formData.warrantyPeriod;
             } else if (typeof formData.warrantyPeriod === "string") {
-                const match = formData.warrantyPeriod.match(/\d+/)
+                const match = formData.warrantyPeriod.match(/\d+/);
                 if (match) {
-                    warrantyMonths = Number.parseInt(match[0], 10)
+                    warrantyMonths = Number.parseInt(match[0], 10);
                 }
             }
 
-            const expirationDate = new Date(distributionDate)
-            expirationDate.setMonth(expirationDate.getMonth() + warrantyMonths)
+            const expirationDate = new Date(distributionDate);
+            expirationDate.setMonth(expirationDate.getMonth() + warrantyMonths);
 
-            const isActive = currentDate <= expirationDate
+            const isActive = currentDate <= expirationDate;
 
             // Calculate days remaining or days expired
-            const diffTime = Math.abs(expirationDate - currentDate)
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+            const diffTime = Math.abs(expirationDate - currentDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
             return {
                 isActive,
                 diffDays,
                 expirationDate,
-            }
+            };
         } catch (error) {
-            return null
+            return null;
         }
-    }
+    };
 
-    const warrantyStatus = getWarrantyStatus()
+    const warrantyStatus = getWarrantyStatus();
 
     return (
         <div className="container mx-auto py-8 px-4 md:px-6 max-w-4xl">
@@ -308,8 +307,9 @@ export default function EditTicketPage({ params }) {
 
                                             {warrantyStatus && (
                                                 <div
-                                                    className={`flex items-center gap-2 ${warrantyStatus.isActive ? "text-green-600 bg-green-50" : "text-red-600 bg-red-50"
-                                                        } px-3 py-1.5 rounded-md text-sm`}
+                                                    className={`flex items-center gap-2 ${
+                                                        warrantyStatus.isActive ? "text-green-600 bg-green-50" : "text-red-600 bg-red-50"
+                                                    } px-3 py-1.5 rounded-md text-sm`}
                                                 >
                                                     {warrantyStatus.isActive ? (
                                                         <>
@@ -448,8 +448,9 @@ export default function EditTicketPage({ params }) {
                                                     <Button
                                                         type="submit"
                                                         disabled={isSubmitting || !hasChanges}
-                                                        className={`bg-purple-600 hover:bg-purple-700 min-w-[120px] ${!hasChanges ? "opacity-50 cursor-not-allowed" : ""
-                                                            }`}
+                                                        className={`bg-purple-600 hover:bg-purple-700 min-w-[120px] ${
+                                                            !hasChanges ? "opacity-50 cursor-not-allowed" : ""
+                                                        }`}
                                                     >
                                                         {isSubmitting ? (
                                                             <>
@@ -477,5 +478,5 @@ export default function EditTicketPage({ params }) {
                 )}
             </div>
         </div>
-    )
+    );
 }
