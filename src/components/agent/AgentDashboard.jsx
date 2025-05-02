@@ -49,18 +49,32 @@ export default function AgentDashboard() {
 
     const deleteTicket = async (ticketId) => {
         try {
-            const response = await fetch(`/api/tickets/${ticketId}`, {
-                method: 'DELETE',
-            });
-            if (!response.ok) {
-                throw new Error('Failed to delete ticket');
+            const ticket = tickets.find(t => t._id === ticketId);
+            if (!ticket) return;
+
+            if (ticket.status === 'resolved') {
+                // For resolved tickets, just hide from dashboard view
+                setTickets(tickets.filter(ticket => ticket._id !== ticketId));
+                toast({
+                    title: "Success",
+                    description: "Ticket hidden from dashboard",
+                    variant: "default",
+                });
+            } else {
+                // For other tickets, proceed with deletion from database
+                const response = await fetch(`/api/tickets/${ticketId}`, {
+                    method: 'DELETE',
+                });
+                if (!response.ok) {
+                    throw new Error('Failed to delete ticket');
+                }
+                setTickets(tickets.filter(ticket => ticket._id !== ticketId));
+                toast({
+                    title: "Success",
+                    description: "Ticket deleted successfully",
+                    variant: "default",
+                });
             }
-            setTickets(tickets.filter(ticket => ticket._id !== ticketId));
-            toast({
-                title: "Success",
-                description: "Ticket deleted successfully",
-                variant: "default",
-            });
         } catch (error) {
             toast({
                 title: "Error",
@@ -68,7 +82,7 @@ export default function AgentDashboard() {
                 variant: "destructive",
             });
         }
-    }
+    };
 
     const getTicketCount = (status) => {
         return tickets.filter(ticket => ticket.status === status).length;
