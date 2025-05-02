@@ -1,7 +1,14 @@
-"use client"
+"use client";
 
-import TicketReply from "@/components/view-ticket-reply/TicketReply"
+import TicketReply from "@/components/view-ticket-reply/TicketReply";
+import { useAuth } from "@/Firebase/AuthContext";
+import { redirect } from "next/navigation";
 
 export default function Page() {
-    return <TicketReply />
+    const { user, loading, setLoading } = useAuth();
+
+    if (!user && !loading) {
+        redirect("/login");
+    }
+    return <TicketReply />;
 }
