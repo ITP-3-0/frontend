@@ -1,25 +1,11 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import {
-    PencilIcon,
-    TrashIcon,
-    LaptopIcon,
-    PlusIcon,
-    SearchIcon,
-    FilterIcon,
-    EyeIcon,
-    CalendarIcon,
-    ClockIcon,
-    UserIcon,
-    TagIcon,
-    CheckCircleIcon,
-    XCircleIcon,
-} from "lucide-react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { PencilIcon, TrashIcon, LaptopIcon, PlusIcon, SearchIcon, FilterIcon, EyeIcon, CalendarIcon, ClockIcon, UserIcon, TagIcon, CheckCircleIcon, XCircleIcon, FileTextIcon } from 'lucide-react'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
     AlertDialog,
     AlertDialogAction,
@@ -29,11 +15,11 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+} from "@/components/ui/alert-dialog"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { useToast } from "@/hooks/use-toast"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
     Pagination,
     PaginationContent,
@@ -41,9 +27,9 @@ import {
     PaginationLink,
     PaginationEllipsis,
     PaginationPrevious,
-    PaginationNext,
-} from "@/components/ui/pagination";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+    PaginationNext
+} from "@/components/ui/pagination"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -51,35 +37,36 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
-import { motion } from "framer-motion";
+} from "@/components/ui/dropdown-menu"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Separator } from "@/components/ui/separator"
+import { motion } from "framer-motion"
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
-import ReplyForm from "../replies/ReplyForm";
-import ReplyList from "../replies/ReplyList";
+import ReplyForm from '../replies/ReplyForm';
+import ReplyList from '../replies/ReplyList';
+import { generatePdfReport } from "@/utils/reportGenerator";
 
 export default function TicketList({ tickets, isAgentView = false }) {
-    const router = useRouter();
-    const { toast } = useToast();
-    const [ticketList, setTicketList] = useState(tickets);
-    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-    const [ticketToDelete, setTicketToDelete] = useState(null);
-    const [isLoading, setIsLoading] = useState(false);
-    const [searchQuery, setSearchQuery] = useState("");
-    const [sortOption, setSortOption] = useState("newest");
-    const [rowsPerPage, setRowsPerPage] = useState(10);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-    const [selectedTicket, setSelectedTicket] = useState(null);
-    const [activeTab, setActiveTab] = useState("all");
-    const [showReplyForm, setShowReplyForm] = useState(false);
+    const router = useRouter()
+    const { toast } = useToast()
+    const [ticketList, setTicketList] = useState(tickets)
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+    const [ticketToDelete, setTicketToDelete] = useState(null)
+    const [isLoading, setIsLoading] = useState(false)
+    const [searchQuery, setSearchQuery] = useState("")
+    const [sortOption, setSortOption] = useState("newest")
+    const [rowsPerPage, setRowsPerPage] = useState(10)
+    const [currentPage, setCurrentPage] = useState(1)
+    const [isViewModalOpen, setIsViewModalOpen] = useState(false)
+    const [selectedTicket, setSelectedTicket] = useState(null)
+    const [activeTab, setActiveTab] = useState("all")
+    const [showReplyForm, setShowReplyForm] = useState(false)
 
     const handleRowsPerPageChange = (value) => {
-        setRowsPerPage(Number(value));
-        setCurrentPage(1);
-    };
+        setRowsPerPage(Number(value))
+        setCurrentPage(1)
+    }
 
     const handleEdit = (id, status) => {
         if (status === "in_progress" || status === "resolved") {
@@ -91,41 +78,41 @@ export default function TicketList({ tickets, isAgentView = false }) {
             return;
         }
         router.push(`/tickets/${id}/edit`);
-    };
+    }
 
     const handleDelete = async () => {
-        if (!ticketToDelete) return;
+        if (!ticketToDelete) return
 
-        setIsLoading(true);
+        setIsLoading(true)
         try {
-            const response = await fetch(`/api/tickets/${ticketToDelete}`, {
+            const response = await fetch(`http://localhost:5000/tickets/${ticketToDelete}`, {
                 method: "DELETE",
-            });
+            })
 
             if (!response.ok) {
-                throw new Error("Failed to delete ticket");
+                throw new Error("Failed to delete ticket")
             }
 
-            setTicketList(ticketList.filter((ticket) => ticket._id !== ticketToDelete));
+            setTicketList(ticketList.filter((ticket) => ticket._id !== ticketToDelete))
 
             toast({
                 title: "Success",
                 description: "Ticket deleted successfully",
                 variant: "success",
-            });
+            })
         } catch (error) {
-            console.error("Error deleting ticket:", error);
+            console.error("Error deleting ticket:", error)
             toast({
                 title: "Error",
                 description: "Failed to delete ticket",
                 variant: "destructive",
-            });
+            })
         } finally {
-            setIsLoading(false);
-            setIsDeleteDialogOpen(false);
-            setTicketToDelete(null);
+            setIsLoading(false)
+            setIsDeleteDialogOpen(false)
+            setTicketToDelete(null)
         }
-    };
+    }
 
     const openDeleteDialog = (id, status) => {
         if (status === "in_progress" || status === "resolved") {
@@ -138,79 +125,91 @@ export default function TicketList({ tickets, isAgentView = false }) {
         }
         setTicketToDelete(id);
         setIsDeleteDialogOpen(true);
-    };
+    }
 
     const handleSortChange = (value) => {
         setSortOption(value); // Update the selected sort option
     };
 
     const handleView = (ticket) => {
-        setSelectedTicket(ticket);
-        setShowReplyForm(true);
-    };
+        setSelectedTicket(ticket)
+        setShowReplyForm(true)
+    }
 
     const handleReplyAdded = (updatedTicket) => {
-        setTicketList(ticketList.map((t) => (t._id === updatedTicket._id ? updatedTicket : t)));
-        setSelectedTicket(updatedTicket);
-    };
+        setTicketList(ticketList.map(t =>
+            t._id === updatedTicket._id ? updatedTicket : t
+        ))
+        setSelectedTicket(updatedTicket)
+    }
 
     // Calculate warranty status
     const getWarrantyStatus = (ticket) => {
         try {
-            const currentDate = new Date();
-            const distributionDate = new Date(ticket.distributionDate);
+            const currentDate = new Date()
+            const distributionDate = new Date(ticket.distributionDate)
 
-            let warrantyMonths = 0;
+            let warrantyMonths = 0
             if (typeof ticket.warrantyPeriod === "number") {
-                warrantyMonths = ticket.warrantyPeriod;
+                warrantyMonths = ticket.warrantyPeriod
             } else if (typeof ticket.warrantyPeriod === "string") {
-                const match = ticket.warrantyPeriod.match(/\d+/);
+                const match = ticket.warrantyPeriod.match(/\d+/)
                 if (match) {
-                    warrantyMonths = Number.parseInt(match[0], 10);
+                    warrantyMonths = Number.parseInt(match[0], 10)
                 }
             }
 
-            const expirationDate = new Date(distributionDate);
-            expirationDate.setMonth(expirationDate.getMonth() + warrantyMonths);
+            const expirationDate = new Date(distributionDate)
+            expirationDate.setMonth(expirationDate.getMonth() + warrantyMonths)
 
-            const isActive = currentDate <= expirationDate;
+            const isActive = currentDate <= expirationDate
 
             // Calculate days remaining or days expired
-            const diffTime = Math.abs(expirationDate - currentDate);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const diffTime = Math.abs(expirationDate - currentDate)
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
 
             return {
                 isActive,
                 diffDays,
-                expirationDate,
-            };
+                expirationDate
+            }
         } catch (error) {
-            return { isActive: false, diffDays: 0, expirationDate: new Date() };
+            return { isActive: false, diffDays: 0, expirationDate: new Date() }
         }
-    };
+    }
 
     // Sort tickets based on the selected sort option
     const sortTickets = (ticketsToSort) => {
         return [...ticketsToSort].sort((a, b) => {
             switch (sortOption) {
                 case "newest":
-                    return new Date(b.createdAt || b.distributionDate) - new Date(a.createdAt || a.distributionDate);
+                    // Safely get dates, preferring createdAt but falling back to distributionDate
+                    const dateA_newest = a.createdAt ? new Date(a.createdAt) :
+                        (a.distributionDate ? new Date(a.distributionDate) : new Date(0));
+                    const dateB_newest = b.createdAt ? new Date(b.createdAt) :
+                        (b.distributionDate ? new Date(b.distributionDate) : new Date(0));
+                    return dateB_newest - dateA_newest;
                 case "oldest":
-                    return new Date(a.createdAt || a.distributionDate) - new Date(b.createdAt || b.distributionDate);
+                    // Safely get dates, preferring createdAt but falling back to distributionDate
+                    const dateA_oldest = a.createdAt ? new Date(a.createdAt) :
+                        (a.distributionDate ? new Date(a.distributionDate) : new Date(0));
+                    const dateB_oldest = b.createdAt ? new Date(b.createdAt) :
+                        (b.distributionDate ? new Date(b.distributionDate) : new Date(0));
+                    return dateA_oldest - dateB_oldest;
                 case "title":
-                    return a.title.localeCompare(b.title);
+                    return a.title.localeCompare(b.title)
                 case "warranty":
-                    const statusA = getWarrantyStatus(a);
-                    const statusB = getWarrantyStatus(b);
+                    const statusA = getWarrantyStatus(a)
+                    const statusB = getWarrantyStatus(b)
                     if (statusA.isActive === statusB.isActive) {
-                        return statusA.diffDays - statusB.diffDays;
+                        return statusA.diffDays - statusB.diffDays
                     }
-                    return statusA.isActive ? -1 : 1;
+                    return statusA.isActive ? -1 : 1
                 default:
-                    return 0;
+                    return 0
             }
-        });
-    };
+        })
+    }
 
     // Filter tickets based on search query and active tab
     const filteredAndSortedTickets = sortTickets(
@@ -218,25 +217,28 @@ export default function TicketList({ tickets, isAgentView = false }) {
             const matchesSearchQuery =
                 ticket.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 ticket.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                (ticket.deviceName && ticket.deviceName.toLowerCase().includes(searchQuery.toLowerCase()));
+                (ticket.deviceName && ticket.deviceName.toLowerCase().includes(searchQuery.toLowerCase()))
 
             // Filter by warranty status if tab is not "all"
             if (activeTab !== "all") {
-                const status = getWarrantyStatus(ticket);
-                if (activeTab === "active" && !status.isActive) return false;
-                if (activeTab === "expired" && status.isActive) return false;
+                const status = getWarrantyStatus(ticket)
+                if (activeTab === "active" && !status.isActive) return false
+                if (activeTab === "expired" && status.isActive) return false
             }
 
-            return matchesSearchQuery;
+            return matchesSearchQuery
         })
-    );
+    )
 
     // Paginate the filtered and sorted tickets
-    const paginatedTickets = filteredAndSortedTickets.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
+    const paginatedTickets = filteredAndSortedTickets.slice(
+        (currentPage - 1) * rowsPerPage,
+        currentPage * rowsPerPage
+    )
 
     // Count tickets by warranty status
-    const activeTicketsCount = ticketList.filter((ticket) => getWarrantyStatus(ticket).isActive).length;
-    const expiredTicketsCount = ticketList.length - activeTicketsCount;
+    const activeTicketsCount = ticketList.filter(ticket => getWarrantyStatus(ticket).isActive).length
+    const expiredTicketsCount = ticketList.length - activeTicketsCount
 
     return (
         <div className="container mx-auto py-8 px-4 md:px-6 max-w-7xl">
@@ -334,6 +336,24 @@ export default function TicketList({ tickets, isAgentView = false }) {
                                 />
                             </div>
 
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button
+                                            variant="secondary"
+                                            className="w-full sm:w-auto bg-green-600 text-white hover:bg-green-700"
+                                            onClick={() => generatePdfReport(filteredAndSortedTickets, getWarrantyStatus)}
+                                        >
+                                            <FileTextIcon className="h-4 w-4 mr-2" />
+                                            Generate Report
+                                        </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p>Generate a report of all ticket information</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <Button variant="outline" className="w-full sm:w-auto">
@@ -346,28 +366,32 @@ export default function TicketList({ tickets, isAgentView = false }) {
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem
                                         onClick={() => handleSortChange("newest")}
-                                        className={`flex items-center justify-between ${sortOption === "newest" ? "bg-muted font-bold" : ""}`}
+                                        className={`flex items-center justify-between ${sortOption === "newest" ? "bg-muted font-bold" : ""
+                                            }`}
                                     >
                                         Newest First
                                         {sortOption === "newest" && <CheckCircleIcon className="h-4 w-4 text-green-500" />}
                                     </DropdownMenuItem>
                                     <DropdownMenuItem
                                         onClick={() => handleSortChange("oldest")}
-                                        className={`flex items-center justify-between ${sortOption === "oldest" ? "bg-muted font-bold" : ""}`}
+                                        className={`flex items-center justify-between ${sortOption === "oldest" ? "bg-muted font-bold" : ""
+                                            }`}
                                     >
                                         Oldest First
                                         {sortOption === "oldest" && <CheckCircleIcon className="h-4 w-4 text-green-500" />}
                                     </DropdownMenuItem>
                                     <DropdownMenuItem
                                         onClick={() => handleSortChange("title")}
-                                        className={`flex items-center justify-between ${sortOption === "title" ? "bg-muted font-bold" : ""}`}
+                                        className={`flex items-center justify-between ${sortOption === "title" ? "bg-muted font-bold" : ""
+                                            }`}
                                     >
                                         Title (A-Z)
                                         {sortOption === "title" && <CheckCircleIcon className="h-4 w-4 text-green-500" />}
                                     </DropdownMenuItem>
                                     <DropdownMenuItem
                                         onClick={() => handleSortChange("warranty")}
-                                        className={`flex items-center justify-between ${sortOption === "warranty" ? "bg-muted font-bold" : ""}`}
+                                        className={`flex items-center justify-between ${sortOption === "warranty" ? "bg-muted font-bold" : ""
+                                            }`}
                                     >
                                         Warranty Status
                                         {sortOption === "warranty" && <CheckCircleIcon className="h-4 w-4 text-green-500" />}
@@ -449,7 +473,9 @@ export default function TicketList({ tickets, isAgentView = false }) {
                 <AlertDialogContent>
                     <AlertDialogHeader>
                         <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                        <AlertDialogDescription>This action cannot be undone. This will permanently delete the ticket.</AlertDialogDescription>
+                        <AlertDialogDescription>
+                            This action cannot be undone. This will permanently delete the ticket.
+                        </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
@@ -466,14 +492,11 @@ export default function TicketList({ tickets, isAgentView = false }) {
 
             {/* View Ticket Details Dialog */}
             {selectedTicket && (
-                <AlertDialog
-                    open={isViewModalOpen || showReplyForm}
-                    onOpenChange={(open) => {
-                        setIsViewModalOpen(open);
-                        if (!open) setSelectedTicket(null);
-                        if (!open) setShowReplyForm(false);
-                    }}
-                >
+                <AlertDialog open={isViewModalOpen || showReplyForm} onOpenChange={(open) => {
+                    setIsViewModalOpen(open);
+                    if (!open) setSelectedTicket(null);
+                    if (!open) setShowReplyForm(false);
+                }}>
                     <AlertDialogContent className="max-w-3xl max-h-[80vh] overflow-hidden flex flex-col">
                         <AlertDialogHeader>
                             <AlertDialogTitle className="text-xl">{selectedTicket.title}</AlertDialogTitle>
@@ -499,15 +522,8 @@ export default function TicketList({ tickets, isAgentView = false }) {
                                         </div>
                                         <div>
                                             <p className="text-sm font-medium">Priority</p>
-                                            <Badge
-                                                variant={
-                                                    selectedTicket.priority === "high"
-                                                        ? "destructive"
-                                                        : selectedTicket.priority === "medium"
-                                                        ? "warning"
-                                                        : "default"
-                                                }
-                                            >
+                                            <Badge variant={selectedTicket.priority === 'high' ? 'destructive' :
+                                                selectedTicket.priority === 'medium' ? 'warning' : 'default'}>
                                                 {selectedTicket.priority}
                                             </Badge>
                                         </div>
@@ -519,15 +535,8 @@ export default function TicketList({ tickets, isAgentView = false }) {
                                         </div>
                                         <div>
                                             <p className="text-sm font-medium">Status</p>
-                                            <Badge
-                                                variant={
-                                                    selectedTicket.status === "resolved"
-                                                        ? "success"
-                                                        : selectedTicket.status === "in_progress"
-                                                        ? "warning"
-                                                        : "default"
-                                                }
-                                            >
+                                            <Badge variant={selectedTicket.status === 'resolved' ? 'success' :
+                                                selectedTicket.status === 'in_progress' ? 'warning' : 'default'}>
                                                 {selectedTicket.status}
                                             </Badge>
                                         </div>
@@ -541,19 +550,19 @@ export default function TicketList({ tickets, isAgentView = false }) {
                                             <p className="text-sm font-medium">Warranty Status</p>
                                             <div className="mt-1">
                                                 {(() => {
-                                                    const status = getWarrantyStatus(selectedTicket);
+                                                    const status = getWarrantyStatus(selectedTicket)
                                                     if (status.isActive) {
                                                         return (
                                                             <Badge variant="outline" className="bg-green-50 text-green-800 border-green-200">
                                                                 Active - {status.diffDays} days remaining
                                                             </Badge>
-                                                        );
+                                                        )
                                                     } else {
                                                         return (
                                                             <Badge variant="outline" className="bg-red-50 text-red-800 border-red-200">
                                                                 Expired - {status.diffDays} days ago
                                                             </Badge>
-                                                        );
+                                                        )
                                                     }
                                                 })()}
                                             </div>
@@ -604,11 +613,19 @@ export default function TicketList({ tickets, isAgentView = false }) {
                 </AlertDialog>
             )}
         </div>
-    );
+    )
 }
 
 // Extracted TicketTable component for better organization
-function TicketTable({ tickets, handleEdit, openDeleteDialog, handleView, isLoading, getWarrantyStatus, searchQuery }) {
+function TicketTable({
+    tickets,
+    handleEdit,
+    openDeleteDialog,
+    handleView,
+    isLoading,
+    getWarrantyStatus,
+    searchQuery
+}) {
     return (
         <Card className="overflow-hidden border-none shadow-md">
             <CardContent className="p-0">
@@ -641,20 +658,25 @@ function TicketTable({ tickets, handleEdit, openDeleteDialog, handleView, isLoad
                                 </TableRow>
                             ) : (
                                 tickets.map((ticket, index) => {
-                                    const warrantyStatus = getWarrantyStatus(ticket);
+                                    const warrantyStatus = getWarrantyStatus(ticket)
 
                                     return (
-                                        <TableRow key={ticket._id} className="group transition-colors hover:bg-muted/30">
+                                        <TableRow
+                                            key={ticket._id}
+                                            className="group transition-colors hover:bg-muted/30"
+                                        >
                                             <TableCell className="font-medium">
                                                 <div className="flex items-center gap-2">
-                                                    <div
-                                                        className={`w-2 h-2 rounded-full ${warrantyStatus.isActive ? "bg-green-500" : "bg-red-500"}`}
-                                                    ></div>
+                                                    <div className={`w-2 h-2 rounded-full ${warrantyStatus.isActive ? 'bg-green-500' : 'bg-red-500'}`}></div>
                                                     {ticket._id.slice(0, 7)} {/* Show only the first 7 characters */}
                                                 </div>
                                             </TableCell>
-                                            <TableCell className="hidden md:table-cell max-w-[200px] truncate">{ticket.title}</TableCell>
-                                            <TableCell className="hidden md:table-cell max-w-[200px] truncate">{ticket.description}</TableCell>
+                                            <TableCell className="hidden md:table-cell max-w-[200px] truncate">
+                                                {ticket.title}
+                                            </TableCell>
+                                            <TableCell className="hidden md:table-cell max-w-[200px] truncate">
+                                                {ticket.description}
+                                            </TableCell>
                                             <TableCell className="hidden lg:table-cell">{ticket.deviceName || "N/A"}</TableCell>
                                             <TableCell className="hidden lg:table-cell">
                                                 {new Date(ticket.distributionDate).toLocaleDateString()}
@@ -663,28 +685,24 @@ function TicketTable({ tickets, handleEdit, openDeleteDialog, handleView, isLoad
                                                 {(() => {
                                                     if (warrantyStatus.isActive) {
                                                         return (
-                                                            <Badge
-                                                                variant="outline"
-                                                                className="bg-green-50 text-green-800 border-green-200 flex items-center gap-1"
-                                                            >
+                                                            <Badge variant="outline" className="bg-green-50 text-green-800 border-green-200 flex items-center gap-1">
                                                                 <CheckCircleIcon className="h-3 w-3" />
                                                                 <span>{warrantyStatus.diffDays} days left</span>
                                                             </Badge>
-                                                        );
+                                                        )
                                                     } else {
                                                         return (
-                                                            <Badge
-                                                                variant="outline"
-                                                                className="bg-red-50 text-red-800 border-red-200 flex items-center gap-1"
-                                                            >
+                                                            <Badge variant="outline" className="bg-red-50 text-red-800 border-red-200 flex items-center gap-1">
                                                                 <XCircleIcon className="h-3 w-3" />
                                                                 <span>Expired</span>
                                                             </Badge>
-                                                        );
+                                                        )
                                                     }
                                                 })()}
                                             </TableCell>
-                                            <TableCell className="hidden md:table-cell max-w-[200px] truncate">{ticket.status}</TableCell>
+                                            <TableCell className="hidden md:table-cell max-w-[200px] truncate">
+                                                {ticket.status}
+                                            </TableCell>
                                             <TableCell className="text-right">
                                                 <div className="flex items-center justify-end gap-1">
                                                     <TooltipProvider>
@@ -751,7 +769,7 @@ function TicketTable({ tickets, handleEdit, openDeleteDialog, handleView, isLoad
                                                 </div>
                                             </TableCell>
                                         </TableRow>
-                                    );
+                                    )
                                 })
                             )}
                         </TableBody>
@@ -759,5 +777,5 @@ function TicketTable({ tickets, handleEdit, openDeleteDialog, handleView, isLoad
                 </div>
             </CardContent>
         </Card>
-    );
+    )
 }
