@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { SearchIcon, FilterIcon } from 'lucide-react';
+import { SearchIcon, FilterIcon, FileTextIcon, Download } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -17,6 +17,7 @@ import { Separator } from "@/components/ui/separator";
 import { Toaster } from "@/components/ui/toaster";
 import ReplyForm from '../replies/ReplyForm';
 import ReplyList from '../replies/ReplyList';
+import { generateTicketReport } from '@/utils/pdfGenerator';
 
 export default function AgentDashboard() {
     const [tickets, setTickets] = useState([]);
@@ -56,6 +57,36 @@ export default function AgentDashboard() {
             t._id === updatedTicket._id ? updatedTicket : t
         ));
         setSelectedTicket(updatedTicket);
+    };
+
+    const generateReport = async () => {
+        try {
+            if (!tickets || tickets.length === 0) {
+                toast({
+                    title: "Error",
+                    description: "No tickets available to generate report",
+                    variant: "destructive",
+                });
+                return;
+            }
+
+            const doc = generateTicketReport(tickets);
+            const fileName = `helpdesk-report-${new Date().toISOString().slice(0,10)}.pdf`;
+            doc.save(fileName);
+            
+            toast({
+                title: "Success",
+                description: "Report downloaded successfully",
+                variant: "default",
+            });
+        } catch (error) {
+            console.error('Report generation error:', error);
+            toast({
+                title: "Error",
+                description: "Failed to generate report. Please try again.",
+                variant: "destructive",
+            });
+        }
     };
 
     const filteredTickets = tickets
@@ -155,6 +186,10 @@ export default function AgentDashboard() {
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
+                    <Button onClick={generateReport} variant="outline">
+                        <FileTextIcon className="mr-2 h-4 w-4" />
+                        Generate Report
+                    </Button>
                 </div>
 
                 {/* Tickets List */}
@@ -267,4 +302,4 @@ export default function AgentDashboard() {
             )}
         </div>
     );
-} 
+}
