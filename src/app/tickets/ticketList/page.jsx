@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import LoadingComponent from "@/components/LoadingComponent/LoadingComponent";
 import TicketList from "@/components/ticket-raising/TicketList";
 
 export default function TicketListPage() {
@@ -27,7 +28,7 @@ export default function TicketListPage() {
     }, []);
 
     if (loading) {
-        return <div>Loading...</div>;
+        return <LoadingComponent />;
     }
 
     return (

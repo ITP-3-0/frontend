@@ -2,7 +2,7 @@
 
 import React from "react";
 
-const loading = () => {
+const LoadingComponent = () => {
     return (
         <div className="loading-container">
             <div className="cube">
@@ -103,4 +103,4 @@ const loading = () => {
     );
 };
 
-export default loading;
+export default LoadingComponent;
