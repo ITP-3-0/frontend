@@ -2,11 +2,18 @@
 
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import AIChat from "@/components/ui/AIChat"; 
-import SupportForm from "@/components/ui/SupportForm"; 
+import AIChat from "@/components/ui/AIChat";
+import SupportForm from "@/components/ui/SupportForm";
+import { useAuth } from "@/Firebase/AuthContext";
+import { redirect } from "next/navigation";
 
 export default function TicketPage() {
     const [selectedOption, setSelectedOption] = useState(null);
+    const { user, loading, setLoading } = useAuth();
+
+    if (!user && !loading) {
+        redirect("/login");
+    }
 
     return (
         <div className="h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-100 via-blue-300 to-blue-500">
