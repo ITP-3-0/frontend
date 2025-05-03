@@ -27,7 +27,7 @@ export const register = async (email, password, censusNo) => {
                 });
             })
             .then(() => {
-                window.location.href = "/portal";
+                window.location.href = "/tickets/ticketList";
             })
             .catch((error) => {
                 if (error.code === "auth/email-already-in-use") {

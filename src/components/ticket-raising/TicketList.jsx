@@ -100,7 +100,7 @@ export default function TicketList({ tickets, isAgentView = false }) {
 
         setIsLoading(true);
         try {
-            const response = await fetch(`http://localhost:5000/tickets/${ticketToDelete}`, {
+            const response = await fetch(`/api/tickets/${ticketToDelete}`, {
                 method: "DELETE",
             });
 
