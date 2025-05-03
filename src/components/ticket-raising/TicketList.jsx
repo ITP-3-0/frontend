@@ -16,6 +16,7 @@ import {
     TagIcon,
     CheckCircleIcon,
     XCircleIcon,
+    FileTextIcon,
 } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -59,6 +60,7 @@ import { motion } from "framer-motion";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import ReplyForm from "../replies/ReplyForm";
 import ReplyList from "../replies/ReplyList";
+import { generatePdfReport } from "@/utils/reportGenerator";
 
 export default function TicketList({ tickets, isAgentView = false }) {
     const router = useRouter();
@@ -98,7 +100,7 @@ export default function TicketList({ tickets, isAgentView = false }) {
 
         setIsLoading(true);
         try {
-            const response = await fetch(`/api/tickets/${ticketToDelete}`, {
+            const response = await fetch(`http://localhost:5000/tickets/${ticketToDelete}`, {
                 method: "DELETE",
             });
 
@@ -146,7 +148,8 @@ export default function TicketList({ tickets, isAgentView = false }) {
 
     const handleView = (ticket) => {
         setSelectedTicket(ticket);
-        setShowReplyForm(true);
+        setIsViewModalOpen(true);
+        // Removed setShowReplyForm(true) to disable reply functionality
     };
 
     const handleReplyAdded = (updatedTicket) => {
@@ -194,9 +197,15 @@ export default function TicketList({ tickets, isAgentView = false }) {
         return [...ticketsToSort].sort((a, b) => {
             switch (sortOption) {
                 case "newest":
-                    return new Date(b.createdAt || b.distributionDate) - new Date(a.createdAt || a.distributionDate);
+                    // Use creation date for sorting, with proper fallback logic
+                    const dateA_newest = new Date(a.createdAt || a.distributionDate || 0);
+                    const dateB_newest = new Date(b.createdAt || b.distributionDate || 0);
+                    return dateB_newest - dateA_newest; // Newest first (descending)
                 case "oldest":
-                    return new Date(a.createdAt || a.distributionDate) - new Date(b.createdAt || b.distributionDate);
+                    // Use creation date for sorting, with proper fallback logic
+                    const dateA_oldest = new Date(a.createdAt || a.distributionDate || 0);
+                    const dateB_oldest = new Date(b.createdAt || b.distributionDate || 0);
+                    return dateA_oldest - dateB_oldest; // Oldest first (ascending)
                 case "title":
                     return a.title.localeCompare(b.title);
                 case "warranty":
@@ -206,6 +215,11 @@ export default function TicketList({ tickets, isAgentView = false }) {
                         return statusA.diffDays - statusB.diffDays;
                     }
                     return statusA.isActive ? -1 : 1;
+                case "time":
+                    const timeA = new Date(a.createdAt || a.distributionDate || 0).getTime();
+                    const timeB = new Date(b.createdAt || b.distributionDate || 0).getTime();
+                    // Sort by time (decending)
+                    return timeB - timeA;
                 default:
                     return 0;
             }
@@ -334,6 +348,24 @@ export default function TicketList({ tickets, isAgentView = false }) {
                                 />
                             </div>
 
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button
+                                            variant="secondary"
+                                            className="w-full sm:w-auto bg-green-600 text-white hover:bg-green-700"
+                                            onClick={() => generatePdfReport(filteredAndSortedTickets, getWarrantyStatus)}
+                                        >
+                                            <FileTextIcon className="h-4 w-4 mr-2" />
+                                            Generate Report
+                                        </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p>Generate a report of all ticket information</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <Button variant="outline" className="w-full sm:w-auto">
@@ -357,6 +389,13 @@ export default function TicketList({ tickets, isAgentView = false }) {
                                     >
                                         Oldest First
                                         {sortOption === "oldest" && <CheckCircleIcon className="h-4 w-4 text-green-500" />}
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                        onClick={() => handleSortChange("time")}
+                                        className={`flex items-center justify-between ${sortOption === "time" ? "bg-muted font-bold" : ""}`}
+                                    >
+                                        Time Created
+                                        {sortOption === "time" && <CheckCircleIcon className="h-4 w-4 text-green-500" />}
                                     </DropdownMenuItem>
                                     <DropdownMenuItem
                                         onClick={() => handleSortChange("title")}
@@ -467,11 +506,11 @@ export default function TicketList({ tickets, isAgentView = false }) {
             {/* View Ticket Details Dialog */}
             {selectedTicket && (
                 <AlertDialog
-                    open={isViewModalOpen || showReplyForm}
+                    open={isViewModalOpen}
                     onOpenChange={(open) => {
                         setIsViewModalOpen(open);
                         if (!open) setSelectedTicket(null);
-                        if (!open) setShowReplyForm(false);
+                        // Removed the showReplyForm reset
                     }}
                 >
                     <AlertDialogContent className="max-w-3xl max-h-[80vh] overflow-hidden flex flex-col">
@@ -572,33 +611,46 @@ export default function TicketList({ tickets, isAgentView = false }) {
                                     </Card>
                                 </div>
 
-                                <Separator />
+                                {/* Display all replies */}
+                                <div className="border rounded-md p-4 bg-muted/30 mt-4">
+                                    <h3 className="text-sm font-semibold mb-3">Agent Replies({selectedTicket.replies?.length || 0})</h3>
 
-                                {showReplyForm && (
-                                    <>
-                                        <h3 className="text-lg font-semibold">Replies</h3>
-                                        <ReplyList replies={selectedTicket.replies || []} />
-                                        <ReplyForm ticketId={selectedTicket._id} onReplyAdded={handleReplyAdded} />
-                                    </>
-                                )}
+                                    <ScrollArea className="h-[200px]">
+                                        <div className="flex flex-col gap-3">
+                                            {selectedTicket.replies?.map((reply, index) => (
+                                                <div key={reply._id || index} className="bg-white border rounded-md p-3 shadow-sm">
+                                                    <div className="flex justify-between items-center mb-2">
+                                                        <div className="flex items-center gap-2">
+                                                            <div className="bg-blue-100 rounded-full p-1">
+                                                                <UserIcon className="h-4 w-4 text-blue-600" />
+                                                            </div>
+                                                            <span className="font-medium">{reply.agentName || "Agent"}</span>
+                                                        </div>
+                                                        <span className="text-xs text-muted-foreground">
+                                                            {new Date(reply.createdAt).toLocaleString()}
+                                                        </span>
+                                                    </div>
+                                                    <p className="text-sm mb-2">{reply.message}</p>
+                                                    {reply.content && (
+                                                        <div className="bg-blue-50 p-3 rounded border border-blue-200 overflow-x-auto">
+                                                            <pre className="text-xs whitespace-pre-wrap text-blue-900">{reply.content}</pre>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ))}
+
+                                            {/* If no replies */}
+                                            {(!selectedTicket.replies || selectedTicket.replies.length === 0) && (
+                                                <div className="text-center p-4 text-muted-foreground text-sm">No replies for this ticket yet.</div>
+                                            )}
+                                        </div>
+                                    </ScrollArea>
+                                </div>
                             </div>
                         </ScrollArea>
 
                         <AlertDialogFooter className="gap-2 sm:gap-0">
                             <AlertDialogCancel>Close</AlertDialogCancel>
-                            {selectedTicket && (
-                                <Button
-                                    variant="outline"
-                                    onClick={() => {
-                                        setIsViewModalOpen(false);
-                                        setSelectedTicket(null);
-                                        handleEdit(selectedTicket._id);
-                                    }}
-                                >
-                                    <PencilIcon className="h-4 w-4 mr-2" />
-                                    Edit
-                                </Button>
-                            )}
                         </AlertDialogFooter>
                     </AlertDialogContent>
                 </AlertDialog>
@@ -684,7 +736,19 @@ function TicketTable({ tickets, handleEdit, openDeleteDialog, handleView, isLoad
                                                     }
                                                 })()}
                                             </TableCell>
-                                            <TableCell className="hidden md:table-cell max-w-[200px] truncate">{ticket.status}</TableCell>
+                                            <TableCell className="text-right">
+                                                <Badge
+                                                    variant={
+                                                        ticket.status === "resolved"
+                                                            ? "success"
+                                                            : ticket.status === "in_progress"
+                                                            ? "warning"
+                                                            : "default"
+                                                    }
+                                                >
+                                                    {ticket.status || "open"}
+                                                </Badge>
+                                            </TableCell>
                                             <TableCell className="text-right">
                                                 <div className="flex items-center justify-end gap-1">
                                                     <TooltipProvider>

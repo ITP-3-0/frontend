@@ -288,6 +288,9 @@ export default function CreateTicketPage() {
                                                         onChange={(e) => setIsQrMode(e.target.checked)}
                                                         className="toggle-checkbox"
                                                     />
+                                                    <span className="text-xs text-muted-foreground ml-2">
+                                                        {isQrMode ? "Values can only be entered via QR scan" : "Manual editing enabled"}
+                                                    </span>
                                                 </div>
 
                                                 <div className="flex flex-col md:flex-row gap-4 items-start md:items-center p-4 bg-muted/30 rounded-lg">
@@ -298,15 +301,17 @@ export default function CreateTicketPage() {
                                                         <div className="space-y-1 flex-1">
                                                             <Label htmlFor="deviceName" className="text-xs text-muted-foreground">
                                                                 Device Name
+                                                                {isQrMode && <span className="ml-1 text-amber-500">(QR only)</span>}
                                                             </Label>
                                                             <Input
                                                                 id="deviceName"
                                                                 name="deviceName"
                                                                 value={formData.deviceName}
                                                                 onChange={handleChange}
-                                                                placeholder="Enter device name"
-                                                                className={`h-9 ${formData.deviceName ? "border-green-300" : ""}`}
+                                                                placeholder={isQrMode ? "Scan QR to fill" : "Enter device name"}
+                                                                className={`h-9 ${formData.deviceName ? "border-green-300" : ""} ${isQrMode ? "bg-muted/50" : ""}`}
                                                                 required
+                                                                readOnly={isQrMode}
                                                             />
                                                         </div>
                                                     </div>
@@ -318,6 +323,7 @@ export default function CreateTicketPage() {
                                                         <div className="space-y-1 flex-1">
                                                             <Label htmlFor="distributionDate" className="text-xs text-muted-foreground">
                                                                 Distribution Date
+                                                                {isQrMode && <span className="ml-1 text-amber-500">(QR only)</span>}
                                                             </Label>
                                                             <Input
                                                                 id="distributionDate"
@@ -327,8 +333,9 @@ export default function CreateTicketPage() {
                                                                 onChange={handleChange}
                                                                 max={new Date().toISOString().split("T")[0]}
                                                                 placeholder="YYYY-MM-DD"
-                                                                className={`h-9 ${formData.distributionDate ? "border-green-300" : ""}`}
+                                                                className={`h-9 ${formData.distributionDate ? "border-green-300" : ""} ${isQrMode ? "bg-muted/50" : ""}`}
                                                                 required
+                                                                readOnly={isQrMode}
                                                             />
                                                         </div>
                                                     </div>
@@ -340,6 +347,7 @@ export default function CreateTicketPage() {
                                                         <div className="space-y-1 flex-1">
                                                             <Label htmlFor="warrantyPeriod" className="text-xs text-muted-foreground">
                                                                 Warranty Period
+                                                                {isQrMode && <span className="ml-1 text-amber-500">(QR only)</span>}
                                                             </Label>
                                                             {isQrMode ? (
                                                                 // Text box for QR filling mode
@@ -348,9 +356,10 @@ export default function CreateTicketPage() {
                                                                     name="warrantyPeriod"
                                                                     value={formData.warrantyPeriod}
                                                                     onChange={handleChange}
-                                                                    placeholder="Enter warranty period"
-                                                                    className={`h-9 ${formData.warrantyPeriod ? "border-green-300" : ""}`}
+                                                                    placeholder="Scan QR to fill"
+                                                                    className={`h-9 ${formData.warrantyPeriod ? "border-green-300" : ""} bg-muted/50`}
                                                                     required
+                                                                    readOnly={true}
                                                                 />
                                                             ) : (
                                                                 // Dropdown for manual filling mode
@@ -404,15 +413,15 @@ export default function CreateTicketPage() {
                                             </div>
                                         )}
 
-                                        {!isDeviceInfoComplete && (
+                                        {!isDeviceInfoComplete && isQrMode && (
                                             <div className="bg-muted/50 p-4 rounded-lg mt-4">
                                                 <div className="flex items-start gap-3">
                                                     <QrCode className="h-5 w-5 text-purple-600 mt-0.5" />
                                                     <div>
                                                         <h4 className="font-medium">Scan QR Code to Continue</h4>
                                                         <p className="text-sm text-muted-foreground mt-1">
-                                                            You need to scan a valid device QR code to auto-fill the device information. Click the
-                                                            "Scan QR Code" button at the top of the form.
+                                                            QR Filling Mode is enabled. You must scan a valid device QR code to auto-fill
+                                                            the device information. Manual editing is disabled in this mode.
                                                         </p>
                                                         <Button
                                                             type="button"

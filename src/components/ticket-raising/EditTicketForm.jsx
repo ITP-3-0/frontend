@@ -28,7 +28,6 @@ export default function EditTicketPage({ params }) {
         deviceName: "",
         distributionDate: "",
         warrantyPeriod: "",
-        agentName: "", // This will be kept but not editable
     });
 
     // Check if form has been modified - only consider title and description as editable
@@ -59,7 +58,6 @@ export default function EditTicketPage({ params }) {
                     deviceName: data.ticket.deviceName || "",
                     distributionDate: formattedDate,
                     warrantyPeriod: data.ticket.warrantyPeriod || "",
-                    agentName: data.ticket.agentName || "",
                 };
 
                 setFormData(ticketData);
@@ -307,9 +305,8 @@ export default function EditTicketPage({ params }) {
 
                                             {warrantyStatus && (
                                                 <div
-                                                    className={`flex items-center gap-2 ${
-                                                        warrantyStatus.isActive ? "text-green-600 bg-green-50" : "text-red-600 bg-red-50"
-                                                    } px-3 py-1.5 rounded-md text-sm`}
+                                                    className={`flex items-center gap-2 ${warrantyStatus.isActive ? "text-green-600 bg-green-50" : "text-red-600 bg-red-50"
+                                                        } px-3 py-1.5 rounded-md text-sm`}
                                                 >
                                                     {warrantyStatus.isActive ? (
                                                         <>
@@ -394,27 +391,6 @@ export default function EditTicketPage({ params }) {
                                                 </div>
                                             </div>
 
-                                            <div className="space-y-3">
-                                                <div className="flex items-start gap-3">
-                                                    <div className="bg-muted p-2 rounded-full mt-0.5">
-                                                        <User className="h-4 w-4 text-purple-600" />
-                                                    </div>
-                                                    <div className="space-y-1.5">
-                                                        <Label htmlFor="agentName" className="text-base">
-                                                            Agent Name
-                                                        </Label>
-                                                        <Input
-                                                            id="agentName"
-                                                            name="agentName"
-                                                            value={formData.agentName}
-                                                            onChange={handleChange}
-                                                            placeholder="Agent Name"
-                                                            className="bg-muted/30"
-                                                            disabled
-                                                        />
-                                                    </div>
-                                                </div>
-                                            </div>
                                         </div>
                                     </div>
                                 </CardContent>
@@ -448,9 +424,8 @@ export default function EditTicketPage({ params }) {
                                                     <Button
                                                         type="submit"
                                                         disabled={isSubmitting || !hasChanges}
-                                                        className={`bg-purple-600 hover:bg-purple-700 min-w-[120px] ${
-                                                            !hasChanges ? "opacity-50 cursor-not-allowed" : ""
-                                                        }`}
+                                                        className={`bg-purple-600 hover:bg-purple-700 min-w-[120px] ${!hasChanges ? "opacity-50 cursor-not-allowed" : ""
+                                                            }`}
                                                     >
                                                         {isSubmitting ? (
                                                             <>

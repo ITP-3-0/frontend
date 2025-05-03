@@ -3,17 +3,10 @@
 import { useEffect, useState } from "react";
 import LoadingComponent from "@/components/LoadingComponent/LoadingComponent";
 import TicketList from "@/components/ticket-raising/TicketList";
-import { useAuth } from "@/Firebase/AuthContext";
-import { redirect } from "next/navigation";
 
 export default function TicketListPage() {
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
-    // const { user, loading, setLoading } = useAuth();
-
-    // if (!user && !loading) {
-    //     redirect("/login");
-    // }
 
     useEffect(() => {
         const fetchTickets = async () => {
@@ -39,7 +32,7 @@ export default function TicketListPage() {
     }
 
     return (
-        <div>
+        <div className="h-full">
             <TicketList tickets={tickets} />
         </div>
     );

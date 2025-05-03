@@ -6,18 +6,19 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/Firebase/AuthContext";
 import LoadingComponent from "@/components/LoadingComponent/LoadingComponent";
+import NavBar from "../_Components/NavBar";
 
 export default function ReplyList() {
     const [replies, setReplies] = useState([]);
-    // const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const router = useRouter();
 
-    const { user, loading, setLoading } = useAuth();
+    // const { user, loading, setLoading } = useAuth();
 
-    if (!user && !loading) {
-        redirect("/login");
-    }
+    // if (!user && !loading) {
+    //     redirect("/login");
+    // }
 
     useEffect(() => {
         fetch("api/replies/")
@@ -64,45 +65,48 @@ export default function ReplyList() {
     };
 
     if (loading) return <LoadingComponent />;
-    if (error) return <p>Error: {error}</p>;
+    // if (error) return <p>Error: {error}</p>;
 
     return (
-        <div className="p-6">
-            <h1 className="text-2xl font-bold mb-4">Forum Replies</h1>
-            <Link href="/replies/new" className="bg-green-500 text-white px-4 py-2 rounded mb-4 inline-block">
-                Create New Reply
-            </Link>
-            {replies.length > 0 ? (
-                <table className="min-w-full table-auto border-collapse">
-                    <thead>
-                        <tr className="bg-gray-100">
-                            <th className="py-2 px-4 border-b">Creator</th>
-                            <th className="py-2 px-4 border-b">Description</th>
-                            <th className="py-2 px-4 border-b">Ticket ID</th>
-                            <th className="py-2 px-4 border-b">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {replies.map((reply) => (
-                            <tr key={reply._id} className="border-b hover:bg-gray-50">
-                                <td className="py-2 px-4">{reply.creator}</td>
-                                <td className="py-2 px-4">{reply.description}</td>
-                                <td className="py-2 px-4">{reply.relatedTickets}</td>
-                                <td className="py-2 px-4 space-x-2">
-                                    <Button onClick={() => handleEdit(reply._id)} className="text-yellow-500 hover:underline">
-                                        Edit
-                                    </Button>
-                                    <Button onClick={() => handleDelete(reply._id)} className="text-red-500 hover:underline">
-                                        Delete
-                                    </Button>
-                                </td>
+        <>
+            <NavBar />
+            <div className="p-6">
+                <h1 className="text-2xl font-bold mb-4">Forum Replies</h1>
+                <Link href="/replies/new" className="bg-green-500 text-white px-4 py-2 rounded mb-4 inline-block">
+                    Create New Reply
+                </Link>
+                {replies.length > 0 ? (
+                    <table className="min-w-full table-auto border-collapse">
+                        <thead>
+                            <tr className="bg-gray-100">
+                                <th className="py-2 px-4 border-b">Creator</th>
+                                <th className="py-2 px-4 border-b">Description</th>
+                                <th className="py-2 px-4 border-b">Ticket ID</th>
+                                <th className="py-2 px-4 border-b">Actions</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
-            ) : (
-                <p>No replies found.</p>
-            )}
-        </div>
+                        </thead>
+                        <tbody>
+                            {replies.map((reply) => (
+                                <tr key={reply._id} className="border-b hover:bg-gray-50">
+                                    <td className="py-2 px-4">{reply.creator}</td>
+                                    <td className="py-2 px-4">{reply.description}</td>
+                                    <td className="py-2 px-4">{reply.relatedTickets}</td>
+                                    <td className="py-2 px-4 space-x-2">
+                                        <Button onClick={() => handleEdit(reply._id)} className="text-yellow-500 hover:underline">
+                                            Edit
+                                        </Button>
+                                        <Button onClick={() => handleDelete(reply._id)} className="text-red-500 hover:underline">
+                                            Delete
+                                        </Button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                ) : (
+                    <p>No replies found.</p>
+                )}
+            </div>
+        </>
     );
 }
