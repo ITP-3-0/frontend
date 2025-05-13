@@ -99,7 +99,7 @@ export default function Home() {
                                 </div>
                             </div>
                             <p className="text-sm text-gray-600">
-                                <span className="font-semibold">2,500+</span> tickets resolved this month
+                                <span className="font-semibold">50+</span> tickets resolved this month
                             </p>
                         </div>
                     </motion.div>
